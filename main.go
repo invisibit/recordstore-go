@@ -7,18 +7,23 @@ import (
 
 	"flag"
 	"fmt"
-	"net/http"
 	"log"
+	"net/http"
 	"os"
 	"time"
+
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 const version = "1.0.1"
 
 type config struct {
-	port int
-	env  string
+	port          int
+	env           string
+	client_id     string
+	client_secret string
+
 	// db   struct {
 	// 	dsn string
 	// }
@@ -36,18 +41,26 @@ type application struct {
 	// models models.Models
 }
 
+var cfg config
+
 func main() {
 
 	// Start up the server
 	fmt.Println("Starting server")
 
-	var cfg config
+	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	cfg.client_id = os.Getenv("client_id")
+	cfg.client_secret = os.Getenv("client_secret")
 
 	flag.IntVar(&cfg.port, "port", 4000, "server port listen on ")
 	flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production")
 	flag.Parse()
-
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
 	app := &application{
 		config: cfg,
@@ -55,7 +68,7 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", cfg.port),
+		Addr:         fmt.Sprintf("localhost:%d", cfg.port),
 		Handler:      app.routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
@@ -67,15 +80,15 @@ func main() {
 	logger.Println("Spotify Login")
 	adapter := adapters.NewAdapter("https://accounts.spotify.com/api/token")
 
-	err := adapter.OpenSpotifyConnection()
+	err = adapter.OpenSpotifyConnection(cfg.client_id, cfg.client_secret)
 	if err != nil {
 		log.Println(err)
 	}
 
-	err = adapter.OpenSpotifyUserConnection()
-	if err != nil {
-		log.Println(err)
-	}
+	// err = adapter.OpenSpotifyUserConnection()
+	// if err != nil {
+	// 	log.Println(err)
+	// }
 
 	err = srv.ListenAndServe()
 	if err != nil {
@@ -109,7 +122,7 @@ func main() {
 // 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 // 				return http.ErrUseLastResponse
 // 			}}
-		
+
 // 		req, err := http.NewRequest("POST", urlReguest, strings.NewReader(parm.Encode()))
 // 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 

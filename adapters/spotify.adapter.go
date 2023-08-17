@@ -55,12 +55,6 @@ func (a *Adapters) OpenSpotifyConnection(client_id string, client_secret string)
 
 	return nil
 
-	// resp, err := http.Get(urlReguest)
-	// if err != nil {1
-	// 	log.Fatal("worker error ", urlReguest)
-	// 	return
-	// }
-
 }
 
 func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, client_secret string) error {
@@ -116,6 +110,7 @@ func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, clie
 	fmt.Println("JSON response", userToken)
 
 	GetSpotifyUserData(userToken.Access_token)
+	GetSpotifyUserFollowedArtists(userToken.Access_token)
 
 	return nil
 
@@ -132,6 +127,45 @@ func GetSpotifyUserData(userToken string) error {
 
 	// Retrieve token from api
 	urlReguest := "https://api.spotify.com/v1/me"
+
+	cookieJar, _ := cookiejar.New(nil)
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr,
+		Jar: cookieJar,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		}}
+
+	req, err := http.NewRequest("GET", urlReguest, strings.NewReader(""))
+	// req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Authorization", "Bearer "+userToken)
+
+	fmt.Println(req.Header)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Printf("%s", err)
+	}
+	fmt.Println(resp.Header)
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("%s", err)
+		return err
+	}
+	fmt.Println(string(body))
+
+	return nil
+}
+
+func GetSpotifyUserFollowedArtists(userToken string) error {
+	fmt.Println("**************************************************************************")
+	fmt.Println("GetSpotifyUserFollowedArtists: ", userToken)
+
+	// Retrieve token from api
+	urlReguest := "https://api.spotify.com/v1/me/following?type=artist"
 
 	cookieJar, _ := cookiejar.New(nil)
 	tr := &http.Transport{

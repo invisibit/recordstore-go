@@ -22,10 +22,4 @@ func (app *application) spotifyCallbackHandler(w http.ResponseWriter, r *http.Re
 	// Use the code to get the access token
 	adapter := adapters.NewAdapter("https://accounts.spotify.com/")
 	adapter.GetSpotifyUserAccessToken(code, cfg.client_id, cfg.client_secret)
-
-	// adapter.GetSpotifyUserData(code)
-	// fmt.Println("state", state)
-
-	w.WriteHeader(http.StatusOK)
-	// w.Write("Thanks")
 }

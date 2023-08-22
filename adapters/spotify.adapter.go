@@ -5,10 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	// "log"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
 	"strings"
+
+	"recordstore-go/models"
 )
 
 type SpotifyUserToken struct {
@@ -57,8 +60,9 @@ func (a *Adapters) OpenSpotifyConnection(client_id string, client_secret string)
 
 }
 
-func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, client_secret string) error {
+func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, client_secret string) (error, models.Followed) {
 	fmt.Println("GetSpotifyUserAccessToken")
+	var followedArtists models.Followed
 	// Retrieve token from api
 	urlReguest := "https://accounts.spotify.com/api/token"
 
@@ -97,22 +101,22 @@ func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, clie
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("%s", err)
-		return err
+		return err, followedArtists
 	}
 	fmt.Println("GetSpotifyUserAccessToken response:", string(body))
 
 	var userToken SpotifyUserToken
 	if err := json.Unmarshal(body, &userToken); err != nil { // Parse []byte to the go struct pointer
 		fmt.Println("Can not unmarshal JSON")
-		return err
+		return err, followedArtists
 	}
 
 	fmt.Println("JSON response", userToken)
 
 	GetSpotifyUserData(userToken.Access_token)
-	GetSpotifyUserFollowedArtists(userToken.Access_token)
+	err, followedArtists = GetSpotifyUserFollowedArtists(userToken.Access_token)
 
-	return nil
+	return nil, followedArtists
 
 	// resp, err := http.Get(urlReguest)
 	// if err != nil {1
@@ -160,9 +164,11 @@ func GetSpotifyUserData(userToken string) error {
 	return nil
 }
 
-func GetSpotifyUserFollowedArtists(userToken string) error {
+func GetSpotifyUserFollowedArtists(userToken string) (error, models.Followed) {
 	fmt.Println("**************************************************************************")
 	fmt.Println("GetSpotifyUserFollowedArtists: ", userToken)
+
+	var followedArtists models.Followed
 
 	// Retrieve token from api
 	urlReguest := "https://api.spotify.com/v1/me/following?type=artist"
@@ -192,9 +198,17 @@ func GetSpotifyUserFollowedArtists(userToken string) error {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("%s", err)
-		return err
+		return err, followedArtists
 	}
-	fmt.Println(string(body))
+	fmt.Println("GetSpotifyUserAccessToken response:", string(body))
 
-	return nil
+	// var followedArtists models.Followed
+	if err := json.Unmarshal(body, &followedArtists); err != nil { // Parse []byte to the go struct pointer
+		fmt.Println("Can not unmarshal JSON")
+		return err, followedArtists
+	}
+
+	fmt.Println("JSON response", followedArtists)	
+
+	return nil, followedArtists
 }

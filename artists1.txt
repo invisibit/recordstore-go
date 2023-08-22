@@ -1,0 +1,2 @@
+Starting server
+2023/08/17 17:06:56 Starting server open port 4000

@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "backend/cmd/api/models"
+	// "recordstore-go/models"
 
 	"flag"
 	"fmt"
@@ -12,6 +12,8 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"gorm.io/gorm"
+	"gorm.io/driver/postgres"
 )
 
 const version = "1.0.1"
@@ -22,9 +24,13 @@ type config struct {
 	client_id     string
 	client_secret string
 
-	// db   struct {
-	// 	dsn string
-	// }
+	db struct {
+		dsn 		string
+		user 		string
+		password	string
+		dbName		string
+		dbPort		string
+	}
 }
 
 type AppStatus struct {
@@ -55,15 +61,37 @@ func main() {
 
 	cfg.client_id = os.Getenv("client_id")
 	cfg.client_secret = os.Getenv("client_secret")
+	cfg.db.dsn = os.Getenv("dsn")
+	cfg.db.user = os.Getenv("db_user")
+	cfg.db.password = os.Getenv("db_password")
+	cfg.db.dbName = os.Getenv("db_name")
 
 	flag.IntVar(&cfg.port, "port", 4000, "server port listen on ")
 	flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production")
+	// flag.StringVar(&cfg.db.dsn, "dsn", "postgres://root:root@127.0.0.1:5434/testingwithrentals?sslmode=disable", "Postgres connection string")
 	flag.Parse()
 
 	app := &application{
 		config: cfg,
 		logger: logger,
 	}
+
+	// Set up database connection
+	if cfg.db.dsn != "" {
+		_, err := gorm.Open(postgres.New(postgres.Config{
+			DSN: "host=localhost user=" + cfg.db.user + " password=" + cfg.db.user + " dbname=" + cfg.db.dbName + " port=" + cfg.db.dbPort + " sslmode=disable", // data source name, refer https://github.com/jackc/pgx
+			PreferSimpleProtocol: true, // disables implicit prepared statement usage. By default pgx automatically uses the extended protocol
+		}), &gorm.Config{})
+		// defer db.close()
+
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
+	// Migrate the schema(probably move to a seperate function)
+	// db.AutoMigrate(&models.Artist{})
+
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf("localhost:%d", cfg.port),

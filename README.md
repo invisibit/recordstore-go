@@ -1,0 +1,1 @@
+Hipster Record Store Clerk will load a Spotify users top albums and provide a critique using an AI generated response.

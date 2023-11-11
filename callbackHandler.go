@@ -27,9 +27,6 @@ func (app *application) spotifyCallbackHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	// js, err := json.MarshalIndent(followedArtists, "", "\t")
-
-	// sessionCookie := "sptfySession=" + sptfyToken
 	http.Redirect(w, r, "http://localhost:3000/Mymusic?sptfySession=" + sptfyToken, http.StatusSeeOther)
 
 }

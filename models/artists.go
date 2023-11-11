@@ -10,6 +10,11 @@ type Artist struct {
 
 type ArtistList []Artist
 
+type ArtistsAnalysis struct {
+	Artists 	ArtistList	`json:"artists"` 
+	Description	string		`json:"description"`
+}
+
 func (a ArtistList) Len() int {
     return len(a)
 }

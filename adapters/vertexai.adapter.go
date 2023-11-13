@@ -16,10 +16,14 @@ import (
 // go get cloud.google.com/go/aiplatform/apiv1beta1@v1.53.0
 // export GOOGLE_APPLICATION_CREDENTIALS="/home/jon/srcjpv/recordstore-go/hipster-record-store-clerk-200755e654ef.json"
 
+type VertexData struct {
+	Content	string	`json:"content"`
+}
+
 var prompt = "Write a paragraph cynically describing the music tastes of someone that likes the following artists: Adrian Quesada, Alabama Shakes, Aloe Blacc,American Aquarium,Beastie Boys,Billy Bragg & Wilco,Black Country, New Road, Black Joe Lewis & The Honeybears,Black Pistol Fire,Blitzen Trapper,Bobby Jealousy,Bria,Caitlin Rose,Calexico,Dawes,Death,Dirty Projectors,Explosions In The Sky,"
 
 // textPredict generates text from prompt and configurations provided.
-func (a *Adapters) TextPredict(w io.Writer, projectID, location, publisher, model string, parameters map[string]interface{}) error {
+func (a *Adapters) TextPredict(w io.Writer, projectID, location, publisher, model string, parameters map[string]interface{}) (error, string) {
 	ctx := context.Background()
 
 	apiEndpoint := fmt.Sprintf("%s-aiplatform.googleapis.com:443", location)
@@ -27,7 +31,7 @@ func (a *Adapters) TextPredict(w io.Writer, projectID, location, publisher, mode
 	client, err := aiplatform.NewPredictionClient(ctx, option.WithEndpoint(apiEndpoint))
 	if err != nil {
 			fmt.Println("unable to create prediction client: %v", err)
-			return err
+			return err, ""
 	}
 	defer client.Close()
 
@@ -42,14 +46,14 @@ func (a *Adapters) TextPredict(w io.Writer, projectID, location, publisher, mode
 	})
 	if err != nil {
 			fmt.Println("unable to convert prompt to Value: %v", err)
-			return err
+			return err, ""
 	}
 
 	// Parameters: the model configuration parameters
 	parametersValue, err := structpb.NewValue(parameters)
 	if err != nil {
 			fmt.Println("unable to convert parameters to Value: %v", err)
-			return err
+			return err, ""
 	}
 
 	// PredictRequest: create the model prediction request
@@ -63,10 +67,13 @@ func (a *Adapters) TextPredict(w io.Writer, projectID, location, publisher, mode
 	resp, err := client.Predict(ctx, req)
 	if err != nil {
 			fmt.Println("error in prediction: %v", err)
-			return err
+			return err, ""
 	}
 
-	fmt.Println("VectorAI TextPredict text-prediction response: %v", resp.Predictions[0])
-	// fmt.Fprintf(w, "text-prediction response: %v", resp.Predictions[0])
-	return nil
+	// var musicAnalysisData VertexData
+	respMap := resp.Predictions[0].GetStructValue().GetFields()
+	// resp.Predictions[0].GetStructValue().UnmarshalJSON(&musicAnalysisData)
+	musicAnalysis := respMap["content"].GetStringValue()
+	fmt.Println("VectorAI TextPredict text-prediction response: ", musicAnalysis)
+	return nil, musicAnalysis
 }

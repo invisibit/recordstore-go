@@ -262,7 +262,7 @@ func (a *Adapters) GetSpotifyUserFollowedArtists(userToken string) (error, []mod
 	for  !isFinished {
 		req, err := http.NewRequest("GET", urlRequest, strings.NewReader(""))
 		req.Header.Add("Authorization", "Bearer "+userToken)
-		fmt.Println("GetSpotifyUserFollowedArtists", req)
+		// fmt.Println("GetSpotifyUserFollowedArtists", req)
 
 		resp, err := client.Do(req)
 		if err != nil {

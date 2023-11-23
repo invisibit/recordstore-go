@@ -74,17 +74,20 @@ func (app *application) spotifyUserMusicDataHandler(w http.ResponseWriter, r *ht
 	}
 
 	// Get the analysis of your artists
-	vertexAI := adapters.NewAdapter("")
-	vertexParams := map[string]interface{}{
-		"temperature": 0.2,
-		"maxOutputTokens": 500,
-		"topP": 0.95,
-		"topK": 40,
-	}
-	err, musicAnalysis := vertexAI.TextPredict(w, "hipster-record-store-clerk", "us-central1", "google", "text-bison@001", vertexParams)
-	if err != nil {
-		fmt.Println("ArtistsResponseRequest error", err)
-		return
+	musicAnalysis := ""
+	if false {
+		vertexAI := adapters.NewAdapter("")
+		vertexParams := map[string]interface{}{
+			"temperature": 0.2,
+			"maxOutputTokens": 500,
+			"topP": 0.95,
+			"topK": 40,
+		}
+		err, musicAnalysis = vertexAI.TextPredict(w, "hipster-record-store-clerk", "us-central1", "google", "text-bison@001", vertexParams)
+		if err != nil {
+			fmt.Println("ArtistsResponseRequest error", err)
+			return
+		}
 	}
 
 	userMusicData := models.MusicData {

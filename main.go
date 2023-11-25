@@ -12,8 +12,8 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	"gorm.io/gorm"
 	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 const version = "1.0.1"
@@ -25,11 +25,11 @@ type config struct {
 	client_secret string
 
 	db struct {
-		dsn 		string
-		user 		string
-		password	string
-		dbName		string
-		dbPort		string
+		dsn      string
+		user     string
+		password string
+		dbName   string
+		dbPort   string
 	}
 }
 
@@ -79,8 +79,8 @@ func main() {
 	// Set up database connection
 	if cfg.db.dsn != "" {
 		_, err := gorm.Open(postgres.New(postgres.Config{
-			DSN: "host=localhost user=" + cfg.db.user + " password=" + cfg.db.user + " dbname=" + cfg.db.dbName + " port=" + cfg.db.dbPort + " sslmode=disable", // data source name, refer https://github.com/jackc/pgx
-			PreferSimpleProtocol: true, // disables implicit prepared statement usage. By default pgx automatically uses the extended protocol
+			DSN:                  "host=0.0.0.0 user=" + cfg.db.user + " password=" + cfg.db.user + " dbname=" + cfg.db.dbName + " port=" + cfg.db.dbPort + " sslmode=disable", // data source name, refer https://github.com/jackc/pgx
+			PreferSimpleProtocol: true,                                                                                                                                         // disables implicit prepared statement usage. By default pgx automatically uses the extended protocol
 		}), &gorm.Config{})
 		// defer db.close()
 
@@ -91,7 +91,6 @@ func main() {
 
 	// Migrate the schema(probably move to a seperate function)
 	// db.AutoMigrate(&models.Artist{})
-
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf("localhost:%d", cfg.port),

@@ -10,7 +10,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -54,10 +54,10 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file AAA")
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal("Error loading .env file AAA")
+	// }
 
 	cfg.client_id = os.Getenv("client_id")
 	cfg.client_secret = os.Getenv("client_secret")
@@ -102,7 +102,7 @@ func main() {
 
 	logger.Println("Starting server open port", cfg.port)
 
-	err = srv.ListenAndServe()
+	err := srv.ListenAndServe()
 	if err != nil {
 		log.Println(err)
 	}

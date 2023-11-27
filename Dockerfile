@@ -9,10 +9,11 @@ COPY . .
 
 # Build the Go application
 RUN go get -d -v ./...
-RUN go install -v ./...
+#RUN go install -v ./...
+RUN go build
 
 # Set the entry point to your application
 CMD ["recordstore-go"]
 
 # Document that the service listens on port 8080
-EXPOSE 4100
+EXPOSE 8080

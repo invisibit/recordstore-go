@@ -66,7 +66,7 @@ func main() {
 	cfg.db.password = os.Getenv("db_password")
 	cfg.db.dbName = os.Getenv("db_name")
 
-	flag.IntVar(&cfg.port, "port", 4100, "server port listen on ")
+	flag.IntVar(&cfg.port, "port", 8080, "server port listen on ")
 	flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production")
 	// flag.StringVar(&cfg.db.dsn, "dsn", "postgres://root:root@127.0.0.1:5434/testingwithrentals?sslmode=disable", "Postgres connection string")
 	flag.Parse()

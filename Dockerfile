@@ -15,4 +15,4 @@ RUN go install -v ./...
 CMD ["recordstore-go"]
 
 # Document that the service listens on port 8080
-EXPOSE 4000
+EXPOSE 4100

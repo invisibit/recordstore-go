@@ -1,5 +1,5 @@
 # Use an official Golang runtime as a parent image
-FROM golang:1.17-alpine
+FROM golang:1.21
 
 # Set the working directory to /go/src/app
 WORKDIR /go/src/recordstore-go

@@ -23,6 +23,7 @@ type config struct {
 	env           string
 	client_id     string
 	client_secret string
+	ui_address    string
 
 	db struct {
 		dsn      string
@@ -61,6 +62,7 @@ func main() {
 
 	cfg.client_id = os.Getenv("client_id")
 	cfg.client_secret = os.Getenv("client_secret")
+	cfg.ui_address = os.Getenv("ui_address")
 	cfg.db.dsn = os.Getenv("dsn")
 	cfg.db.user = os.Getenv("db_user")
 	cfg.db.password = os.Getenv("db_password")

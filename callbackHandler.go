@@ -27,6 +27,6 @@ func (app *application) spotifyCallbackHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	http.Redirect(w, r, "http://localhost:3000/Mymusic?sptfySession=" + sptfyToken, http.StatusSeeOther)
+	http.Redirect(w, r, cfg.ui_address+"/Mymusic?sptfySession="+sptfyToken, http.StatusSeeOther)
 
 }

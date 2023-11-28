@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strings"
+
+	"recordstore-go/models"
 
 	aiplatform "cloud.google.com/go/aiplatform/apiv1beta1"
 	"cloud.google.com/go/aiplatform/apiv1beta1/aiplatformpb"
@@ -11,27 +14,27 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
-// Setup 
+// Setup
 // go get cloud.google.com/go/aiplatform
 // go get cloud.google.com/go/aiplatform/apiv1beta1@v1.53.0
 // export GOOGLE_APPLICATION_CREDENTIALS="/home/jon/srcjpv/recordstore-go/hipster-record-store-clerk-200755e654ef.json"
 
 type VertexData struct {
-	Content	string	`json:"content"`
+	Content string `json:"content"`
 }
 
-var prompt = "Write a paragraph cynically describing the music tastes of someone that likes the following artists: Adrian Quesada, Alabama Shakes, Aloe Blacc,American Aquarium,Beastie Boys,Billy Bragg & Wilco,Black Country, New Road, Black Joe Lewis & The Honeybears,Black Pistol Fire,Blitzen Trapper,Bobby Jealousy,Bria,Caitlin Rose,Calexico,Dawes,Death,Dirty Projectors,Explosions In The Sky,"
+var prompt = "Write a paragraph cynically describing the music tastes of someone that likes the following artists: "
 
 // textPredict generates text from prompt and configurations provided.
-func (a *Adapters) TextPredict(w io.Writer, projectID, location, publisher, model string, parameters map[string]interface{}) (error, string) {
+func (a *Adapters) TextPredict(w io.Writer, artists []models.Artist, projectID, location, publisher, model string, parameters map[string]interface{}) (error, string) {
 	ctx := context.Background()
 
 	apiEndpoint := fmt.Sprintf("%s-aiplatform.googleapis.com:443", location)
 
 	client, err := aiplatform.NewPredictionClient(ctx, option.WithEndpoint(apiEndpoint))
 	if err != nil {
-			fmt.Println("unable to create prediction client: %v", err)
-			return err, ""
+		fmt.Println("unable to create prediction client: %v", err)
+		return err, ""
 	}
 	defer client.Close()
 
@@ -41,33 +44,46 @@ func (a *Adapters) TextPredict(w io.Writer, projectID, location, publisher, mode
 	url := fmt.Sprintf("%s/%s", base, model)
 
 	// Instances: the prompt to use with the text model
+	// Use a slice to store the names
+	var names []string
+
+	// Iterate through the array and extract the Name field
+	for _, artist := range artists {
+		names = append(names, artist.Name)
+	}
+
+	// Join the names with commas
+	artistList := strings.Join(names, ", ")
+
+	prompt += prompt + artistList
+
 	promptValue, err := structpb.NewValue(map[string]interface{}{
-			"prompt": prompt,
+		"prompt": prompt,
 	})
 	if err != nil {
-			fmt.Println("unable to convert prompt to Value: %v", err)
-			return err, ""
+		fmt.Println("unable to convert prompt to Value: %v", err)
+		return err, ""
 	}
 
 	// Parameters: the model configuration parameters
 	parametersValue, err := structpb.NewValue(parameters)
 	if err != nil {
-			fmt.Println("unable to convert parameters to Value: %v", err)
-			return err, ""
+		fmt.Println("unable to convert parameters to Value: %v", err)
+		return err, ""
 	}
 
 	// PredictRequest: create the model prediction request
 	req := &aiplatformpb.PredictRequest{
-			Endpoint:   url,
-			Instances:  []*structpb.Value{promptValue},
-			Parameters: parametersValue,
+		Endpoint:   url,
+		Instances:  []*structpb.Value{promptValue},
+		Parameters: parametersValue,
 	}
 
 	// PredictResponse: receive the response from the model
 	resp, err := client.Predict(ctx, req)
 	if err != nil {
-			fmt.Println("error in prediction: %v", err)
-			return err, ""
+		fmt.Println("error in prediction: %v", err)
+		return err, ""
 	}
 
 	// var musicAnalysisData VertexData

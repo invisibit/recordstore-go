@@ -83,7 +83,7 @@ func (app *application) spotifyUserMusicDataHandler(w http.ResponseWriter, r *ht
 			"topP":            0.95,
 			"topK":            40,
 		}
-		err, musicAnalysis = vertexAI.TextPredict(w, "hipster-record-store-clerk", "us-central1", "google", "text-bison@001", vertexParams)
+		err, musicAnalysis = vertexAI.TextPredict(w, followedArtists, "hipster-record-store-clerk", "us-central1", "google", "text-bison@001", vertexParams)
 		if err != nil {
 			fmt.Println("ArtistsResponseRequest error", err)
 			return

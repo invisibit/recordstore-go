@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+
 	// "log"
 	"net/http"
 	"net/http/cookiejar"
@@ -30,39 +31,38 @@ type SpotifyArtist struct {
 	// 	Total int    `json:"total"`
 	// } `json:"followers"`
 	// Genres []string `json:"genres"`
-	Href   string   `json:"href"`
-	ID     string   `json:"id"`
+	Href   string `json:"href"`
+	ID     string `json:"id"`
 	Images []struct {
 		URL    string `json:"url"`
 		Height int    `json:"height"`
 		Width  int    `json:"width"`
 	} `json:"images"`
-	Name       string `json:"name"`
+	Name string `json:"name"`
 	// Popularity int    `json:"popularity"`
 	// Type       string `json:"type"`
 	// URI        string `json:"uri"`
 }
 
-
 type SpotifyArtists struct {
 	// Href	string 		`json:"href"`
 	// Limit	int 		`json:"limit"`
-	Items	[]SpotifyArtist 	`json:"items"`
-	Next	string 		`json:"next"`
-	Cursors	struct {
-		After	string 	`json:"after"`
-		Before	string 	`json:"before"`
-	}	`json:"cursors"`
-	Total	int			`json:"total"`
+	Items   []SpotifyArtist `json:"items"`
+	Next    string          `json:"next"`
+	Cursors struct {
+		After  string `json:"after"`
+		Before string `json:"before"`
+	} `json:"cursors"`
+	Total int `json:"total"`
 }
 
 type SpotifyFollowed struct {
-	Artists	SpotifyArtists	`json:"artists"`
+	Artists SpotifyArtists `json:"artists"`
 }
 
 type SpotifyAlbum struct {
-	AlbumType        string   `json:"album_type"`
-	ExternalUrls     struct {
+	AlbumType    string `json:"album_type"`
+	ExternalUrls struct {
 		Spotify string `json:"spotify"`
 	} `json:"external_urls"`
 	ID     string `json:"id"`
@@ -71,25 +71,25 @@ type SpotifyAlbum struct {
 		Height int    `json:"height"`
 		Width  int    `json:"width"`
 	} `json:"images"`
-	Name                 string `json:"name"`
-	Genres     []string `json:"genres"`
+	Name   string   `json:"name"`
+	Genres []string `json:"genres"`
 }
 
 type SpotifyItem struct {
-	AddedAt	string 			`json:"added_at"`
-	Album	SpotifyAlbum 	`json:"album"`
+	AddedAt string       `json:"added_at"`
+	Album   SpotifyAlbum `json:"album"`
 }
 
 type SpotifyAlbums struct {
 	// Href	string 		`json:"href"`
 	// Limit	int 		`json:"limit"`
-	Items	[]SpotifyItem 	`json:"items"`
-	Next	string 			`json:"next"`
-	Total	int				`json:"total"`
+	Items []SpotifyItem `json:"items"`
+	Next  string        `json:"next"`
+	Total int           `json:"total"`
 }
 
 type SpotifySavedAlbums struct {
-	Albums	SpotifyAlbums	`json:"albums"`
+	Albums SpotifyAlbums `json:"albums"`
 }
 
 // OpenSpotifyConnection gets a bearer to use for this session
@@ -139,7 +139,7 @@ func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, clie
 
 	parm := url.Values{}
 	parm.Add("code", code)
-	parm.Add("redirect_uri", "http://localhost:4000/v1/spotify/callback")
+	parm.Add("redirect_uri", "https://recordstore-go-344gqgcrvq-uc.a.run.app/v1/spotify/callback")
 	parm.Add("grant_type", "authorization_code")
 
 	cookieJar, _ := cookiejar.New(nil)
@@ -259,7 +259,7 @@ func (a *Adapters) GetSpotifyUserFollowedArtists(userToken string) (error, []mod
 		}}
 
 	var isFinished = false
-	for  !isFinished {
+	for !isFinished {
 		req, err := http.NewRequest("GET", urlRequest, strings.NewReader(""))
 		req.Header.Add("Authorization", "Bearer "+userToken)
 		// fmt.Println("GetSpotifyUserFollowedArtists", req)
@@ -298,10 +298,10 @@ func (a *Adapters) GetSpotifyUserFollowedArtists(userToken string) (error, []mod
 
 			}
 
-			curArtist := models.Artist {
-				ID: artist.ID,
-				Name: artist.Name,
-				ExternalUrls: artist.ExternalUrls.Spotify,
+			curArtist := models.Artist{
+				ID:            artist.ID,
+				Name:          artist.Name,
+				ExternalUrls:  artist.ExternalUrls.Spotify,
 				AlbumImageUrl: artistImage, // decide which one
 			}
 			artists = append(artists, curArtist)
@@ -341,7 +341,7 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 		}}
 
 	var isFinished = false
-	for  !isFinished {
+	for !isFinished {
 		req, err := http.NewRequest("GET", urlRequest, strings.NewReader(""))
 		req.Header.Add("Authorization", "Bearer "+userToken)
 
@@ -383,13 +383,13 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 				genres += genre + " "
 			}
 
-			curAlbum := models.Album {
-				ID: item.Album.ID,
-				Name: item.Album.Name,
-				AlbumType: item.Album.AlbumType,
-				ExternalUrls: item.Album.ExternalUrls.Spotify,
+			curAlbum := models.Album{
+				ID:            item.Album.ID,
+				Name:          item.Album.Name,
+				AlbumType:     item.Album.AlbumType,
+				ExternalUrls:  item.Album.ExternalUrls.Spotify,
 				AlbumImageUrl: albumImage, // decide which one
-				Genres: genres,
+				Genres:        genres,
 			}
 			albums = append(albums, curAlbum)
 		}

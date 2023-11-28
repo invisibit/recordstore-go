@@ -9,8 +9,8 @@ COPY . .
 
 # Build the Go application
 RUN go get -d -v ./...
-#RUN go install -v ./...
-RUN go build
+RUN go install -v ./...
+#RUN go build
 
 # Set the entry point to your application
 CMD ["recordstore-go"]

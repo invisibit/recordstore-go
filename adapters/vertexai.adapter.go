@@ -82,8 +82,10 @@ func (a *Adapters) TextPredict(w io.Writer, artists []models.Artist, projectID, 
 	// PredictResponse: receive the response from the model
 	resp, err := client.Predict(ctx, req)
 	if err != nil {
-		fmt.Println("error in prediction: %v", err)
-		return err, ""
+		fmt.Println("TextPredict error in prediction: %v", err)
+		fmt.Println("req:", req)
+		fmt.Print("Prompt length:", len(prompt))
+		return err, "TextPredict error"
 	}
 
 	// var musicAnalysisData VertexData

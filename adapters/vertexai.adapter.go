@@ -23,10 +23,11 @@ type VertexData struct {
 	Content string `json:"content"`
 }
 
-var prompt = "Write a paragraph cynically describing the music tastes of someone that likes the following artists: "
+var analysisPrompt = "Write a paragraph cynically describing the music tastes of someone that likes the following artists: "
 
 // textPredict generates text from prompt and configurations provided.
 func (a *Adapters) TextPredict(w io.Writer, artists []models.Artist, projectID, location, publisher, model string, parameters map[string]interface{}) (error, string) {
+	fmt.Println("Enter TextPredict")
 	ctx := context.Background()
 
 	apiEndpoint := fmt.Sprintf("%s-aiplatform.googleapis.com:443", location)
@@ -55,7 +56,7 @@ func (a *Adapters) TextPredict(w io.Writer, artists []models.Artist, projectID, 
 	// Join the names with commas
 	artistList := strings.Join(names, ", ")
 
-	prompt += prompt + artistList
+	prompt := analysisPrompt + artistList
 
 	promptValue, err := structpb.NewValue(map[string]interface{}{
 		"prompt": prompt,
@@ -92,6 +93,12 @@ func (a *Adapters) TextPredict(w io.Writer, artists []models.Artist, projectID, 
 	respMap := resp.Predictions[0].GetStructValue().GetFields()
 	// resp.Predictions[0].GetStructValue().UnmarshalJSON(&musicAnalysisData)
 	musicAnalysis := respMap["content"].GetStringValue()
+	if musicAnalysis == "" {
+		fmt.Println("TextPredict error in prediction - Empty: ")
+		fmt.Println("Body:", resp)
+		return err, "TextPredict error - musicAnalysis empty"
+	}
+
 	fmt.Println("VectorAI TextPredict text-prediction response: ", musicAnalysis)
 	return nil, musicAnalysis
 }

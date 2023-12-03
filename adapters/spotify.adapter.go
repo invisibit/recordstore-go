@@ -132,14 +132,17 @@ func (a *Adapters) OpenSpotifyConnection(client_id string, client_secret string)
 
 }
 
-func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, client_secret string) (error, string) {
+func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, client_secret string, redirectHost string) (error, string) {
 	fmt.Println("GetSpotifyUserAccessToken")
+	fmt.Println("GetSpotifyUserAccessToken", redirectHost)
+
 	// Retrieve token from api
 	urlReguest := "https://accounts.spotify.com/api/token"
 
 	parm := url.Values{}
 	parm.Add("code", code)
-	parm.Add("redirect_uri", "https://recordstore-go-344gqgcrvq-uc.a.run.app/v1/spotify/callback")
+	parm.Add("redirect_uri", "https://" + redirectHost + "/v1/spotify/callback")
+	// parm.Add("redirect_uri", "http://localhost:4000/v1/spotify/callback")
 	parm.Add("grant_type", "authorization_code")
 
 	cookieJar, _ := cookiejar.New(nil)

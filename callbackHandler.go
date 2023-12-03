@@ -21,11 +21,13 @@ func (app *application) spotifyCallbackHandler(w http.ResponseWriter, r *http.Re
 
 	// Use the code to get the access token
 	adapter := adapters.NewAdapter("https://accounts.spotify.com/")
-	err, sptfyToken := adapter.GetSpotifyUserAccessToken(code, cfg.client_id, cfg.client_secret)
+	err, sptfyToken := adapter.GetSpotifyUserAccessToken(code, cfg.client_id, cfg.client_secret, r.Host)
 	if err != nil {
 		fmt.Println("GetSpotifyUserAccessToken error")
 		return
 	}
+
+	fmt.Println("--------------------------------------------Redirect---------------------")
 
 	http.Redirect(w, r, cfg.ui_address+"/Mymusic?sptfySession="+sptfyToken, http.StatusSeeOther)
 

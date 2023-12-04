@@ -27,8 +27,8 @@ func (app *application) spotifyCallbackHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	fmt.Println("--------------------------------------------Redirect---------------------")
+	fmt.Println("--------------------------------------------Redirect---------------------", cfg.ui_address)
 
-	http.Redirect(w, r, cfg.ui_address+"/Mymusic?sptfySession="+sptfyToken, http.StatusSeeOther)
+	http.Redirect(w, r, "https://" + cfg.ui_address+"/Mymusic?sptfySession="+sptfyToken, http.StatusSeeOther)
 
 }

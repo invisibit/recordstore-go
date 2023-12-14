@@ -20,7 +20,7 @@ import (
 const version = "1.0.1"
 
 type config struct {
-	port          int
+	port          string
 	env           string
 	client_id     string
 	client_secret string

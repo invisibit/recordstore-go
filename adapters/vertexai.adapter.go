@@ -23,14 +23,21 @@ type VertexData struct {
 	Content string `json:"content"`
 }
 
-var analysisPrompt = "Write a paragraph cynically describing the music tastes of someone that likes the following artists: "
+type VertexModelParams struct {
+	Location	string 
+	Publisher	string 
+	Model		string 
+}
+
+// var analysisPrompt = "Write a paragraph cynically describing the music tastes of someone that likes the following artists: "
+var analysisPrompt = "Write a cynically scathing review of the music tastes of someone that likes the following artists: "
 
 // textPredict generates text from prompt and configurations provided.
-func (a *Adapters) TextPredict(w io.Writer, artists []models.Artist, projectID, location, publisher, model string, parameters map[string]interface{}) (error, string) {
+func (a *Adapters) TextPredict(w io.Writer, artists []models.Artist, projectID string, vertexParams VertexModelParams, parameters map[string]interface{}) (error, string) {
 	fmt.Println("Enter TextPredict")
 	ctx := context.Background()
 
-	apiEndpoint := fmt.Sprintf("%s-aiplatform.googleapis.com:443", location)
+	apiEndpoint := fmt.Sprintf("%s-aiplatform.googleapis.com:443", vertexParams.Location)
 
 	client, err := aiplatform.NewPredictionClient(ctx, option.WithEndpoint(apiEndpoint))
 	if err != nil {
@@ -41,8 +48,8 @@ func (a *Adapters) TextPredict(w io.Writer, artists []models.Artist, projectID, 
 
 	// PredictRequest requires an endpoint, instances, and parameters
 	// Endpoint
-	base := fmt.Sprintf("projects/%s/locations/%s/publishers/%s/models", projectID, location, publisher)
-	url := fmt.Sprintf("%s/%s", base, model)
+	base := fmt.Sprintf("projects/%s/locations/%s/publishers/%s/models", projectID, vertexParams.Location, vertexParams.Publisher)
+	url := fmt.Sprintf("%s/%s", base, vertexParams.Model)
 
 	// Instances: the prompt to use with the text model
 	// Use a slice to store the names

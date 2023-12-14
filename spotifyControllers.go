@@ -75,7 +75,7 @@ func (app *application) spotifyUserMusicDataHandler(w http.ResponseWriter, r *ht
 
 	// Get the analysis of your artists
 	musicAnalysis := ""
-	if true {
+	if cfg.env != "develop" {
 		vertexAI := adapters.NewAdapter("")
 		vertexParams := map[string]interface{}{
 			"temperature":     0.2,
@@ -83,10 +83,12 @@ func (app *application) spotifyUserMusicDataHandler(w http.ResponseWriter, r *ht
 			"topP":            0.95,
 			"topK":            40,
 		}
-		err, musicAnalysis = vertexAI.TextPredict(w, followedArtists, "hipster-record-store-clerk", "us-central1", "google", "text-bison@001", vertexParams)
+		err, musicAnalysis = vertexAI.TextPredict(w, followedArtists, "hipster-record-store-clerk", cfg.vertex, vertexParams)
 		if err != nil {
 			fmt.Println("ArtistsResponseRequest error", err)
 		}
+	} else {
+		musicAnalysis = "No textPredict data in develop mode"
 	}
 
 	userMusicData := models.MusicData{

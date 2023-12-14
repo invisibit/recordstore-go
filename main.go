@@ -67,7 +67,7 @@ func main() {
 	}
 	
 	cfg.env = os.Getenv("env")
-	cfg.port = os.Getenv("port")
+	cfg.port = os.Getenv("srv_port")
 	cfg.client_id = os.Getenv("client_id")
 	cfg.client_secret = os.Getenv("client_secret")
 	cfg.ui_address = os.Getenv("ui_address")
@@ -112,7 +112,7 @@ func main() {
 		hostname = "0.0.0.0"
 	}
 	srv := &http.Server{
-		Addr:         fmt.Sprintf("%s:%d", hostname, cfg.port),
+		Addr:         fmt.Sprintf("%s:%s", hostname, cfg.port),
 		Handler:      app.routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,

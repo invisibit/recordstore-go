@@ -78,7 +78,7 @@ func main() {
 	cfg.vertex.Publisher = os.Getenv("vertexai_publisher")
 	cfg.vertex.Model = os.Getenv("vertexai_model")
 
-	flag.IntVar(&cfg.port, "port", 4000, "server port listen on ")
+	// flag.IntVar(&cfg.port, "port", 4000, "server port listen on ")
 	// flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production")
 	// flag.StringVar(&cfg.db.dsn, "dsn", "postgres://root:root@127.0.0.1:5434/testingwithrentals?sslmode=disable", "Postgres connection string")
 	flag.Parse()

@@ -141,8 +141,8 @@ func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, clie
 
 	parm := url.Values{}
 	parm.Add("code", code)
-	parm.Add("redirect_uri", "https://" + redirectHost + "/v1/spotify/callback")
-	// parm.Add("redirect_uri", "http://localhost:4000/v1/spotify/callback")
+
+	parm.Add("redirect_uri", redirectHost)
 	parm.Add("grant_type", "authorization_code")
 
 	cookieJar, _ := cookiejar.New(nil)

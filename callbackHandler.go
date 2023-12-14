@@ -21,14 +21,26 @@ func (app *application) spotifyCallbackHandler(w http.ResponseWriter, r *http.Re
 
 	// Use the code to get the access token
 	adapter := adapters.NewAdapter("https://accounts.spotify.com/")
-	err, sptfyToken := adapter.GetSpotifyUserAccessToken(code, cfg.client_id, cfg.client_secret, r.Host)
+	redirectHost := ""
+	if cfg.env == "develop" { 
+		redirectHost = "http://localhost:4000/v1/spotify/callback"
+	} else {
+		redirectHost = "https://" + r.Host + "/v1/spotify/callback"
+	}
+
+	err, sptfyToken := adapter.GetSpotifyUserAccessToken(code, cfg.client_id, cfg.client_secret, redirectHost)
 	if err != nil {
 		fmt.Println("GetSpotifyUserAccessToken error")
 		return
 	}
 
-	fmt.Println("--------------------------------------------Redirect---------------------", cfg.ui_address)
+	fmt.Println("--------------------------------------------Redirect---------------------");
 
-	http.Redirect(w, r, "https://" + cfg.ui_address+"/Mymusic?sptfySession="+sptfyToken, http.StatusSeeOther)
+	if cfg.env == "develop" {
+		fmt.Println("Develop environment")
+		http.Redirect(w, r, "http://localhost:3000/Mymusic?sptfySession=" + sptfyToken, http.StatusSeeOther)
+	} else {
+		http.Redirect(w, r, "https://" + cfg.ui_address+"/Mymusic?sptfySession="+sptfyToken, http.StatusSeeOther)
+	}
 
 }

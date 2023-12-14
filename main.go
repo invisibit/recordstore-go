@@ -2,6 +2,7 @@ package main
 
 import (
 	// "recordstore-go/models"
+	"recordstore-go/adapters"
 
 	"flag"
 	"fmt"
@@ -10,7 +11,7 @@ import (
 	"os"
 	"time"
 
-	// "github.com/joho/godotenv"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -32,6 +33,8 @@ type config struct {
 		dbName   string
 		dbPort   string
 	}
+
+	vertex			adapters.VertexModelParams
 }
 
 type AppStatus struct {
@@ -55,21 +58,28 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Fatal("Error loading .env file AAA")
-	// }
-
+	if cfg.env != "develop" {
+		fmt.Println("Load .env")
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal("Error loading .env file AAA")
+		}
+	}
+	
 	cfg.client_id = os.Getenv("client_id")
 	cfg.client_secret = os.Getenv("client_secret")
 	cfg.ui_address = os.Getenv("ui_address")
+	cfg.env = os.Getenv("env")
 	cfg.db.dsn = os.Getenv("dsn")
 	cfg.db.user = os.Getenv("db_user")
 	cfg.db.password = os.Getenv("db_password")
 	cfg.db.dbName = os.Getenv("db_name")
+	cfg.vertex.Location = os.Getenv("vertexai_location")
+	cfg.vertex.Publisher = os.Getenv("vertexai_publisher")
+	cfg.vertex.Model = os.Getenv("vertexai_model")
 
-	flag.IntVar(&cfg.port, "port", 8080, "server port listen on ")
-	flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production")
+	flag.IntVar(&cfg.port, "port", 4000, "server port listen on ")
+	// flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production")
 	// flag.StringVar(&cfg.db.dsn, "dsn", "postgres://root:root@127.0.0.1:5434/testingwithrentals?sslmode=disable", "Postgres connection string")
 	flag.Parse()
 
@@ -94,8 +104,14 @@ func main() {
 	// Migrate the schema(probably move to a seperate function)
 	// db.AutoMigrate(&models.Artist{})
 
+	hostname := ""
+	if cfg.env != "develop" {
+		hostname = "localhost"
+	} else {
+		hostname = "0.0.0.0"
+	}
 	srv := &http.Server{
-		Addr:         fmt.Sprintf("0.0.0.0:%d", cfg.port),
+		Addr:         fmt.Sprintf("%s:%d", hostname, cfg.port),
 		Handler:      app.routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
@@ -104,8 +120,8 @@ func main() {
 
 	logger.Println("Starting server open port", cfg.port)
 
-	err := srv.ListenAndServe()
-	if err != nil {
-		log.Println(err)
+	srvErr := srv.ListenAndServe()
+	if srvErr != nil {
+		log.Println(srvErr)
 	}
 }

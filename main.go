@@ -66,10 +66,11 @@ func main() {
 		}
 	}
 	
+	cfg.env = os.Getenv("env")
+	cfg.port = os.Getenv("port")
 	cfg.client_id = os.Getenv("client_id")
 	cfg.client_secret = os.Getenv("client_secret")
 	cfg.ui_address = os.Getenv("ui_address")
-	cfg.env = os.Getenv("env")
 	cfg.db.dsn = os.Getenv("dsn")
 	cfg.db.user = os.Getenv("db_user")
 	cfg.db.password = os.Getenv("db_password")

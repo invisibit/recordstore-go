@@ -121,6 +121,8 @@ func main() {
 
 	logger.Println("Starting server open port", cfg.port)
 
+	fmt.Println("Config struct", cfg)
+
 	srvErr := srv.ListenAndServe()
 	if srvErr != nil {
 		log.Println(srvErr)

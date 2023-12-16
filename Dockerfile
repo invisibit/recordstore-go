@@ -6,6 +6,7 @@ WORKDIR /go/src/recordstore-go
 
 # Copy the local package files to the container's workspace
 COPY . .
+COPY default.env .env
 
 # Build the Go application
 RUN go get -d -v ./...

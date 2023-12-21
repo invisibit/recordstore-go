@@ -15,5 +15,8 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/spotify/savedAlbums", app.spotifySavedAlbumsHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/spotify/userMusicData", app.spotifyUserMusicDataHandler)
 
+	router.HandlerFunc(http.MethodGet, "/v1/amazon/callback", app.amazonCallbackHandler)
+
+
 	return app.enableCORS(router)
 }

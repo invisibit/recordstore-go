@@ -30,7 +30,7 @@ type VertexModelParams struct {
 }
 
 // var analysisPrompt = "Write a paragraph cynically describing the music tastes of someone that likes the following artists: "
-var analysisPrompt = "Write a cynically scathing review of the music tastes of someone that likes the following artists: "
+var analysisPrompt = "Write a cynically scathing review of the music tastes of someone that likes some of these musicians: "
 
 // textPredict generates text from prompt and configurations provided.
 func (a *Adapters) TextPredict(w io.Writer, artists []models.Artist, projectID string, vertexParams VertexModelParams, parameters map[string]interface{}) (error, string) {
@@ -64,6 +64,10 @@ func (a *Adapters) TextPredict(w io.Writer, artists []models.Artist, projectID s
 	artistList := strings.Join(names, ", ")
 
 	prompt := analysisPrompt + artistList
+
+	if len(prompt) > 1200 {
+		prompt = prompt[:1200]
+	}
 
 	promptValue, err := structpb.NewValue(map[string]interface{}{
 		"prompt": prompt,

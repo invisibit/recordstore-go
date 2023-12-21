@@ -164,7 +164,6 @@ func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, clie
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.SetBasicAuth(client_id, client_secret)
 
-	fmt.Println(req)
 	fmt.Println("Req body:", req.Body)
 
 	resp, err := client.Do(req)

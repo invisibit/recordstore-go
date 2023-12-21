@@ -44,3 +44,17 @@ func (app *application) spotifyCallbackHandler(w http.ResponseWriter, r *http.Re
 	}
 
 }
+
+func (app *application) amazonCallbackHandler(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("amazonCallbackHandler")
+	// Get parameters
+	code := r.URL.Query().Get("code")
+	loginError := r.URL.Query().Get("error")
+
+	fmt.Println("code", code)
+	if loginError != "" {
+		fmt.Println("loginError", loginError)
+	}
+
+}

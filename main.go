@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "recordstore-go/models"
+	"recordstore-go/models"
 	"recordstore-go/adapters"
 
 	"flag"
@@ -58,14 +58,12 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-	if cfg.env == "develop" {
-		fmt.Println("Load .env")
-		err := godotenv.Load()
-		if err != nil {
-			log.Fatal("Error loading .env file AAA")
-		}
+	fmt.Println("Load .env")
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file Add .env to prod that's blank")
 	}
-	
+
 	cfg.env = os.Getenv("env")
 	cfg.port = os.Getenv("srv_port")
 	cfg.client_id = os.Getenv("client_id")
@@ -75,6 +73,7 @@ func main() {
 	cfg.db.user = os.Getenv("db_user")
 	cfg.db.password = os.Getenv("db_password")
 	cfg.db.dbName = os.Getenv("db_name")
+	cfg.db.dbPort = os.Getenv("db_port")
 	cfg.vertex.Location = os.Getenv("vertexai_location")
 	cfg.vertex.Publisher = os.Getenv("vertexai_publisher")
 	cfg.vertex.Model = os.Getenv("vertexai_model")
@@ -82,6 +81,7 @@ func main() {
 	// flag.IntVar(&cfg.port, "port", 4000, "server port listen on ")
 	// flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production")
 	// flag.StringVar(&cfg.db.dsn, "dsn", "postgres://root:root@127.0.0.1:5434/testingwithrentals?sslmode=disable", "Postgres connection string")
+	flag.StringVar(&cfg.db.dsn, "dsn", "postgres://root:root@127.0.0.1:5434/testingwithrentals?sslmode=disable", "Postgres connection string")
 	flag.Parse()
 
 	app := &application{
@@ -91,8 +91,8 @@ func main() {
 
 	// Set up database connection
 	if cfg.db.dsn != "" {
-		_, err := gorm.Open(postgres.New(postgres.Config{
-			DSN:                  "host=localhost user=" + cfg.db.user + " password=" + cfg.db.user + " dbname=" + cfg.db.dbName + " port=" + cfg.db.dbPort + " sslmode=disable", // data source name, refer https://github.com/jackc/pgx
+		db, err := gorm.Open(postgres.New(postgres.Config{
+			DSN: "host=localhost user=" + cfg.db.user + " password=" + cfg.db.password + " dbname=" + cfg.db.dbName + " port=" + cfg.db.dbPort + " sslmode=disable", // data source name, refer https://github.com/jackc/pgx
 			PreferSimpleProtocol: true,                                                                                                                                           // disables implicit prepared statement usage. By default pgx automatically uses the extended protocol
 		}), &gorm.Config{})
 		// defer db.close()
@@ -100,10 +100,11 @@ func main() {
 		if err != nil {
 			log.Println(err)
 		}
-	}
 
-	// Migrate the schema(probably move to a seperate function)
-	// db.AutoMigrate(&models.Artist{})
+		// Migrate the schema(probably move to a seperate function)
+		// _ = db.Exec("CREATE DATABASE IF NOT EXISTS record_store;")
+		db.AutoMigrate(&models.Artist{})
+	}
 
 	hostname := ""
 	if cfg.env != "develop" {
@@ -121,7 +122,7 @@ func main() {
 
 	logger.Println("Starting server open port", cfg.port)
 
-	fmt.Println("Config struct", cfg)
+	// fmt.Println("Config struct", cfg)
 
 	srvErr := srv.ListenAndServe()
 	if srvErr != nil {

@@ -61,110 +61,93 @@ func (app *application) spotifyUserMusicDataHandler(w http.ResponseWriter, r *ht
 	sptfySession := r.URL.Query().Get("sptfySession")
 
 	// Check if a current session
-	currentSession, _ := models.IsCurrentSession(cfg.db.conn, sptfySession)
+	existingUser, _ := models.GetExistingSession(cfg.db.conn, sptfySession)
 
 	userMusicData := models.MusicData{}
-	fmt.Println("spotifyUserMusicDataHandler Check if new")
-	if !currentSession && sptfySession != "" {
-		// Check if user exists in system
-		// This is not a current session 
-		// spotifyID, err := models.GetSpotifyIDBySessionID(sptfySession)
-		// if err != nil {
-		// 	fmt.Println("GetSpotifyIDBySessionID error")
-		// 	return
-		// }
-		// user, err := models.GetUserBySpotifyID(cfg.db.conn, spotifyID)
-		// if err != nil {
-		// 	fmt.Println("GetUserBySpotifyID error")
-		// 	return
-		// }
+	fmt.Println("spotifyUserMusicDataHandler Check if new user:", existingUser)
+	if existingUser.ID == 0 && sptfySession != "" {
 
-		// if user != nil {
-		// 	// Return current stored data
-
-		// 	followedArtists, err := user.GetUserArtists(cfg.db.conn)
-		// 	savedAlbums, err := user.GetUserArtists(cfg.db.conn)
-
-		// 	fmt.Println("spotifyUserMusicDataHandler Bundle Data")
-		// 	userMusicData = models.MusicData{
-		// 		Albums:   savedAlbums,
-		// 		Artists:  followedArtists,
-		// 		Analysis: user.Analysis,
-		// 	}
-
-		// } else 
-		if true {
-			fmt.Println("spotifyUserMusicDataHandler Get token")
-			// Use the token to get followed artists
-			adapter := adapters.NewAdapter("")
-			err, followedArtists := adapter.GetSpotifyUserFollowedArtists(sptfySession)
-			if err != nil {
-				fmt.Println("GetSpotifyUserFollowedArtists error")
-				return
-			}
-
-			// Get the saved albums
-			err, savedAlbums := adapter.GetSpotifyUserSavedAlbums(sptfySession)
-			if err != nil {
-				fmt.Println("spotifySavedAlbumsHandler error")
-				return
-			}
-
-			// Get the analysis of your artists
-			musicAnalysis := ""
-			// if cfg.env != "develop" {
-			if true {
-				vertexAI := adapters.NewAdapter("")
-				vertexParams := map[string]interface{}{
-					"temperature":     0.2,
-					"maxOutputTokens": 500,
-					"topP":            0.95,
-					"topK":            40,
-				}
-				err, musicAnalysis = vertexAI.TextPredict(w, followedArtists, "hipster-record-store-clerk", cfg.vertex, vertexParams)
-				if err != nil {
-					fmt.Println("ArtistsResponseRequest error", err)
-				}
-			} else {
-				musicAnalysis = "No textPredict data in develop mode"
-			}
-
-			fmt.Println("spotifyUserMusicDataHandler Bundle Data")
-			userMusicData = models.MusicData{
-				Albums:   savedAlbums,
-				Artists:  followedArtists,
-				Analysis: musicAnalysis,
-			}
-
-			// // Need to spin this off to update albums and artists and relationships
-			// // go
-			// userMusicData.Artists.InsertAll(cfg.db.conn)
-
-			// Get the spotify user info
-			adapter.GetSpotifyUserData(sptfySession)
-
-			// Create Spotify Session
-			user := models.User{}
-			err = user.CreateUserSpotifySession(cfg.db.conn, sptfySession)
-			if err != nil {
-				fmt.Println("spotifyUserMusicDataHandler:CreateUserSpotifySession error")
-				return
-			}
-
-			// Need to spin this off to update albums and artists and relationships
-			go user.UpdateUserLibrary(cfg.db.conn, userMusicData)
-			// user.AddUserArtists(cfg.db.conn, followedArtists)
+		fmt.Println("spotifyUserMusicDataHandler Get token")
+		// Use the token to get followed artists
+		adapter := adapters.NewAdapter("")
+		err, followedArtists := adapter.GetSpotifyUserFollowedArtists(sptfySession)
+		if err != nil {
+			fmt.Println("GetSpotifyUserFollowedArtists error")
+			return
 		}
 
-	} else {
-		fmt.Println("spotifyUserMusicDataHandler Existing")
-		// Get existing data
+		// Get the saved albums
+		err, savedAlbums := adapter.GetSpotifyUserSavedAlbums(sptfySession)
+		if err != nil {
+			fmt.Println("spotifySavedAlbumsHandler error")
+			return
+		}
 
-		// userMusicData = models.MusicData{
-		// 	Albums:   savedAlbums,
-		// 	Artists:  followedArtists,
-		// 	Analysis: musicAnalysis,
-		// }
+		// Get the analysis of your artists
+		musicAnalysis := ""
+		// if cfg.env != "develop" {
+		if true {
+			vertexAI := adapters.NewAdapter("")
+			vertexParams := map[string]interface{}{
+				"temperature":     0.2,
+				"maxOutputTokens": 500,
+				"topP":            0.95,
+				"topK":            40,
+			}
+			err, musicAnalysis = vertexAI.TextPredict(w, followedArtists, "hipster-record-store-clerk", cfg.vertex, vertexParams)
+			if err != nil {
+				fmt.Println("ArtistsResponseRequest error", err)
+			}
+		} else {
+			musicAnalysis = "No textPredict data in develop mode"
+		}
+
+		fmt.Println("spotifyUserMusicDataHandler Bundle Data")
+		userMusicData = models.MusicData{
+			Albums:   savedAlbums,
+			Artists:  followedArtists,
+			Analysis: musicAnalysis,
+		}
+
+		// // Need to spin this off to update albums and artists and relationships
+		// // go
+		// userMusicData.Artists.InsertAll(cfg.db.conn)
+
+		// Get the spotify user info
+		adapter.GetSpotifyUserData(sptfySession)
+
+		// Create Spotify Session
+		user := models.User{}
+		err = user.CreateUserSpotifySession(cfg.db.conn, sptfySession)
+		if err != nil {
+			fmt.Println("spotifyUserMusicDataHandler:CreateUserSpotifySession error")
+			return
+		}
+
+		// Need to spin this off to update albums and artists and relationships
+		go user.UpdateUserLibrary(cfg.db.conn, userMusicData)
+		// user.AddUserArtists(cfg.db.conn, followedArtists)
+	} else if existingUser.ID != 0 {
+		fmt.Println("spotifyUserMusicDataHandler Existing")
+		// Check if user exists in system
+		// This is not a current session 
+		followedArtists, err := existingUser.GetUserArtists(cfg.db.conn)
+		if err != nil {
+			fmt.Println("spotifyUserMusicDataHandler:GetUserArtists error")
+			return
+		}
+		savedAlbums, err := existingUser.GetUserAlbums(cfg.db.conn)
+		if err != nil {
+			fmt.Println("spotifyUserMusicDataHandler:GetUserAlbums error")
+			return
+		}
+
+		fmt.Println("spotifyUserMusicDataHandler existingUser Bundle Data")
+		userMusicData = models.MusicData{
+			Albums:   savedAlbums,
+			Artists:  followedArtists,
+			Analysis: existingUser.Analysis,
+		}
 	}
 
 	js, _ := json.MarshalIndent(userMusicData, "", "\t")

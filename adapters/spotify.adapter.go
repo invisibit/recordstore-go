@@ -71,8 +71,9 @@ type SpotifyAlbum struct {
 		Height int    `json:"height"`
 		Width  int    `json:"width"`
 	} `json:"images"`
-	Name   string   `json:"name"`
-	Genres []string `json:"genres"`
+	Name    string          `json:"name"`
+	Genres  []string        `json:"genres"`
+	Artists []SpotifyArtist `json:"artists"`
 }
 
 type SpotifyItem struct {
@@ -203,7 +204,7 @@ func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, clie
 
 }
 
-func GetSpotifyUserData(userToken string) error {
+func (a *Adapters) GetSpotifyUserData(userToken string) error {
 	fmt.Println("GetSpotifyUserData: ", userToken)
 
 	// Retrieve token from api
@@ -301,7 +302,7 @@ func (a *Adapters) GetSpotifyUserFollowedArtists(userToken string) (error, []mod
 			}
 
 			curArtist := models.Artist{
-				ID:            artist.ID,
+				SpotifyID:     artist.ID,
 				Name:          artist.Name,
 				ExternalUrls:  artist.ExternalUrls.Spotify,
 				AlbumImageUrl: artistImage, // decide which one
@@ -385,13 +386,30 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 				genres += genre + " "
 			}
 
+			var artists []models.Artist
+			for _, a := range item.Album.Artists {
+				artistImage := ""
+				if len(a.Images) > 0 {
+					artistImage = a.Images[0].URL
+
+				}
+				artist := models.Artist{
+					SpotifyID:     a.ID,
+					Name:          a.Name,
+					ExternalUrls:  a.ExternalUrls.Spotify,
+					AlbumImageUrl: artistImage,
+				}
+				artists = append(artists, artist)
+			}
+
 			curAlbum := models.Album{
-				ID:            item.Album.ID,
+				SpotifyID:     item.Album.ID,
 				Name:          item.Album.Name,
 				AlbumType:     item.Album.AlbumType,
 				ExternalUrls:  item.Album.ExternalUrls.Spotify,
 				AlbumImageUrl: albumImage, // decide which one
 				Genres:        genres,
+				Artists:       artists,
 			}
 			albums = append(albums, curAlbum)
 		}

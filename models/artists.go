@@ -54,7 +54,14 @@ func (al ArtistList) InsertAll(db *gorm.DB) error {
 	return nil
 }
 
-func (a Artist) GetArtist(db *gorm.DB) error {
+func (a *Artist) GetArtist(db *gorm.DB) error {
 	db.First(&a, a.ID)
 	return nil
+}
+
+func (a *Artist) GetArtistIDBySpotifyID(db *gorm.DB) uint {
+	var artist Artist
+	db.Where("spotify_id = ?", a.SpotifyID).Find(&artist)
+
+	return artist.ID
 }

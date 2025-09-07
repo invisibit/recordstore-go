@@ -17,6 +17,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Edit for Dad
 const version = "1.0.1"
 
 type config struct {

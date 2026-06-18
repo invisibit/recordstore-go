@@ -1,8 +1,8 @@
 package main
 
 import (
-	"recordstore-go/models"
 	"recordstore-go/adapters"
+	"recordstore-go/models"
 
 	"flag"
 	"fmt"
@@ -35,7 +35,7 @@ type config struct {
 		dbPort   string
 	}
 
-	vertex			adapters.VertexModelParams
+	vertex adapters.VertexModelParams
 }
 
 type AppStatus struct {
@@ -93,8 +93,8 @@ func main() {
 	// Set up database connection
 	if cfg.db.dsn != "" {
 		db, err := gorm.Open(postgres.New(postgres.Config{
-			DSN: "host=localhost user=" + cfg.db.user + " password=" + cfg.db.password + " dbname=" + cfg.db.dbName + " port=" + cfg.db.dbPort + " sslmode=disable", // data source name, refer https://github.com/jackc/pgx
-			PreferSimpleProtocol: true,                                                                                                                                           // disables implicit prepared statement usage. By default pgx automatically uses the extended protocol
+			DSN:                  "host=localhost user=" + cfg.db.user + " password=" + cfg.db.password + " dbname=" + cfg.db.dbName + " port=" + cfg.db.dbPort + " sslmode=disable", // data source name, refer https://github.com/jackc/pgx
+			PreferSimpleProtocol: true,                                                                                                                                               // disables implicit prepared statement usage. By default pgx automatically uses the extended protocol
 		}), &gorm.Config{})
 		// defer db.close()
 
@@ -125,7 +125,8 @@ func main() {
 
 	// fmt.Println("Config struct", cfg)
 
-	srvErr := srv.ListenAndServe()
+	// srvErr := srv.ListenAndServe()
+	srvErr := srv.ListenAndServeTLS("localhost+2.pem", "localhost+2-key.pem")
 	if srvErr != nil {
 		log.Println(srvErr)
 	}

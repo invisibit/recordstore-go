@@ -97,6 +97,8 @@ func (app *application) spotifyUserMusicDataHandler(w http.ResponseWriter, r *ht
 		Analysis: musicAnalysis,
 	}
 
+	fmt.Println("spotifyUserMusicDataHandler return", userMusicData)
+
 	js, err := json.MarshalIndent(userMusicData, "", "\t")
 
 	w.Header().Set("Content-Type", "json")

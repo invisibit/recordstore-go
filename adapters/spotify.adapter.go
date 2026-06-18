@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 
 	// "log"
 	"net/http"
@@ -121,7 +121,7 @@ func (a *Adapters) OpenSpotifyConnection(client_id string, client_secret string)
 	}
 	// fmt.Println(resp.Header)
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("%s", err)
 		return err
@@ -173,7 +173,7 @@ func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, clie
 	}
 	fmt.Println(resp.Header)
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("%s", err)
 		return err, ""
@@ -231,7 +231,7 @@ func GetSpotifyUserData(userToken string) error {
 	}
 	fmt.Println(resp.Header)
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("%s", err)
 		return err
@@ -276,7 +276,7 @@ func (a *Adapters) GetSpotifyUserFollowedArtists(userToken string) (error, []mod
 		fmt.Println(resp.Body)
 
 		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			fmt.Printf("%s", err)
 			return err, artists
@@ -288,10 +288,6 @@ func (a *Adapters) GetSpotifyUserFollowedArtists(userToken string) (error, []mod
 			return err, artists
 		}
 
-		// if len(artists) > 39 {
-		// 	fmt.Println("followedArtists.Artists", followedArtists.Artists)
-		// }
-		// Convert return Artists to Artist model
 		for _, artist := range followedArtists.Artists.Items {
 			// Check if there is an associated image for the artist
 			artistImage := ""
@@ -314,6 +310,9 @@ func (a *Adapters) GetSpotifyUserFollowedArtists(userToken string) (error, []mod
 		if len(artists) >= followedArtists.Artists.Total {
 			isFinished = true
 		}
+
+		// JV For test
+		isFinished = true
 	}
 
 	// Sort by artist name
@@ -328,6 +327,7 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 
 	var savedAlbums SpotifyAlbums
 	var albums []models.Album
+	var itemsToReturn = 20 // savedAlbums.Total
 
 	// Retrieve token from api
 	urlRequest := "https://api.spotify.com/v1/me/albums"
@@ -354,7 +354,7 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 		}
 
 		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			fmt.Printf("%s", err)
 			return err, albums
@@ -398,9 +398,10 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 
 		urlRequest = savedAlbums.Next
 
-		if len(albums) >= savedAlbums.Total {
+		if len(albums) >= itemsToReturn {
 			isFinished = true
 		}
+
 	}
 
 	return nil, albums

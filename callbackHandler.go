@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"recordstore-go/adapters"
+	"time"
 )
 
 func (app *application) spotifyCallbackHandler(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +24,7 @@ func (app *application) spotifyCallbackHandler(w http.ResponseWriter, r *http.Re
 	adapter := adapters.NewAdapter("https://accounts.spotify.com/")
 	redirectHost := ""
 	if cfg.env == "develop" {
-		redirectHost = "https://127.0.0.1:4000/v1/spotify/callback"
+		redirectHost = "http://localhost:4000/v1/spotify/callback"
 	} else {
 		redirectHost = "https://" + r.Host + "/v1/spotify/callback"
 	}
@@ -37,6 +38,15 @@ func (app *application) spotifyCallbackHandler(w http.ResponseWriter, r *http.Re
 	fmt.Println("--------------------------------------------Redirect---------------------")
 
 	if cfg.env == "develop" {
+		fmt.Println("spotifyCallbackHandler Create cookie")
+		expiration := time.Now().Add(365 * 24 * time.Hour)
+		cookie := http.Cookie{
+			Name:    "userSession",
+			Value:   "1",
+			Expires: expiration}
+
+		fmt.Println("spotifyCallbackHandler Set cookie")
+		http.SetCookie(w, &cookie)
 		fmt.Println("Develop environment")
 		http.Redirect(w, r, "http://localhost:3000/Mymusic?sptfySession="+sptfyToken, http.StatusSeeOther)
 	} else {

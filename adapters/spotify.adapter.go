@@ -1,6 +1,7 @@
 package adapters
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -71,8 +72,9 @@ type SpotifyAlbum struct {
 		Height int    `json:"height"`
 		Width  int    `json:"width"`
 	} `json:"images"`
-	Name   string   `json:"name"`
-	Genres []string `json:"genres"`
+	Name    string          `json:"name"`
+	Genres  []string        `json:"genres"`
+	Artists []SpotifyArtist `json:"artists"`
 }
 
 type SpotifyItem struct {
@@ -203,7 +205,7 @@ func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, clie
 
 }
 
-func GetSpotifyUserData(userToken string) error {
+func (a *Adapters) GetSpotifyUserData(userToken string) error {
 	fmt.Println("GetSpotifyUserData: ", userToken)
 
 	// Retrieve token from api
@@ -297,7 +299,7 @@ func (a *Adapters) GetSpotifyUserFollowedArtists(userToken string) (error, []mod
 			}
 
 			curArtist := models.Artist{
-				ID:            artist.ID,
+				SpotifyID:     artist.ID,
 				Name:          artist.Name,
 				ExternalUrls:  artist.ExternalUrls.Spotify,
 				AlbumImageUrl: artistImage, // decide which one
@@ -385,13 +387,30 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 				genres += genre + " "
 			}
 
+			var artists []models.Artist
+			for _, a := range item.Album.Artists {
+				artistImage := ""
+				if len(a.Images) > 0 {
+					artistImage = a.Images[0].URL
+
+				}
+				artist := models.Artist{
+					SpotifyID:     a.ID,
+					Name:          a.Name,
+					ExternalUrls:  a.ExternalUrls.Spotify,
+					AlbumImageUrl: artistImage,
+				}
+				artists = append(artists, artist)
+			}
+
 			curAlbum := models.Album{
-				ID:            item.Album.ID,
+				SpotifyID:     item.Album.ID,
 				Name:          item.Album.Name,
 				AlbumType:     item.Album.AlbumType,
 				ExternalUrls:  item.Album.ExternalUrls.Spotify,
 				AlbumImageUrl: albumImage, // decide which one
 				Genres:        genres,
+				// Artists:       artists,
 			}
 			albums = append(albums, curAlbum)
 		}
@@ -405,4 +424,43 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 	}
 
 	return nil, albums
+}
+
+// Send request to spotify to play onb users device
+func (a *Adapters) PlaySpotifyAlbum(userToken string, albumID string, deviceID string) error {
+	fmt.Println("Enter PlaySpotifyAlbum")
+
+	// Retrieve token from api
+	urlRequest := "https://api.spotify.com/v1/me/player/play?device_id=" + deviceID
+
+	cookieJar, _ := cookiejar.New(nil)
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr,
+		Jar: cookieJar,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		}}
+
+	reqBody, err := json.Marshal(map[string]string{
+		"context_uri": "spotify:album:" + albumID,
+	})
+	req, err := http.NewRequest("PUT", urlRequest, bytes.NewBuffer(reqBody))
+	req.Header.Add("Authorization", "Bearer "+userToken)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Printf("%s", err)
+		return err
+	}
+
+	defer resp.Body.Close()
+	return nil
+	// _, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	fmt.Printf("%s", err)
+	// 	return err, albums
+	// }
+
 }

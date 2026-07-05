@@ -13,6 +13,8 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -41,12 +43,6 @@ type Config struct {
 	}
 
 	vertex adapters.VertexModelParams
-}
-
-type AppStatus struct {
-	Status      string `json:"status"`
-	Environment string `json:"environment"`
-	Version     string `json:"version"`
 }
 
 type application struct {
@@ -126,7 +122,7 @@ func main() {
 	}
 	srv := &http.Server{
 		Addr:         fmt.Sprintf("%s:%s", hostname, cfg.port),
-		Handler:      app.routes(),
+		Handler:      h2c.NewHandler(app.routes(), &http2.Server{}),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,

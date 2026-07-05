@@ -1,11 +1,53 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+	"strings"
+)
+
+var corsAllowedHeaders = strings.Join([]string{
+	"Content-Type",
+	"Authorization",
+	"Connect-Protocol-Version",
+	"Connect-Timeout-Ms",
+	"Grpc-Timeout",
+	"X-Grpc-Web",
+	"X-User-Agent",
+}, ", ")
+
+var corsExposedHeaders = strings.Join([]string{
+	"Grpc-Status",
+	"Grpc-Message",
+	"Grpc-Status-Details-Bin",
+}, ", ")
 
 func (app *application) enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := r.Header.Get("Origin")
+		if app.originAllowed(origin) {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Add("Vary", "Origin")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", corsAllowedHeaders)
+			w.Header().Set("Access-Control-Expose-Headers", corsExposedHeaders)
+			w.Header().Set("Access-Control-Max-Age", "7200")
+		}
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (app *application) originAllowed(origin string) bool {
+	if origin == "" {
+		return false
+	}
+	if app.config.env == "develop" {
+		return origin == "http://localhost:3000" || origin == "https://localhost:3000"
+	}
+	return origin == "https://"+app.config.ui_address
 }

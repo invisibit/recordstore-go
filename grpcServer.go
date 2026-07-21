@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"connectrpc.com/connect"
 
-	v1 "recordstore-go/gen/recordstore/v1"
 	"recordstore-go/adapters"
+	v1 "recordstore-go/gen/recordstore/v1"
 	"recordstore-go/models"
 )
 
@@ -36,10 +37,7 @@ func (app *application) GetFollowedArtists(
 	}), nil
 }
 
-func (app *application) GetSavedAlbums(
-	ctx context.Context,
-	req *connect.Request[v1.GetSavedAlbumsRequest],
-) (*connect.Response[v1.GetSavedAlbumsResponse], error) {
+func (app *application) GetSavedAlbums(ctx context.Context, req *connect.Request[v1.GetSavedAlbumsRequest]) (*connect.Response[v1.GetSavedAlbumsResponse], error) {
 	adapter := adapters.NewAdapter("")
 	err, albums := adapter.GetSpotifyUserSavedAlbums(req.Msg.SptfySession)
 	if err != nil {
@@ -54,6 +52,7 @@ func (app *application) GetUserMusicData(
 	ctx context.Context,
 	req *connect.Request[v1.GetUserMusicDataRequest],
 ) (*connect.Response[v1.GetUserMusicDataResponse], error) {
+	fmt.Println("Enter GetMusicUserData")
 	adapter := adapters.NewAdapter("")
 
 	err, artists := adapter.GetSpotifyUserFollowedArtists(req.Msg.SptfySession)
@@ -61,10 +60,12 @@ func (app *application) GetUserMusicData(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	err, albums := adapter.GetSpotifyUserSavedAlbums(req.Msg.SptfySession)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
+	// TODO add after streaming worked out
+	// err, albums := adapter.GetSpotifyUserSavedAlbums(req.Msg.SptfySession)
+	// if err != nil {
+	// 	return nil, connect.NewError(connect.CodeInternal, err)
+	// }
+	albums := []models.Album{}
 
 	analysis := "No textPredict data in develop mode"
 	if app.config.env != "develop" {
@@ -92,7 +93,7 @@ func toProtoArtists(in []models.Artist) []*v1.Artist {
 	out := make([]*v1.Artist, len(in))
 	for i, a := range in {
 		out[i] = &v1.Artist{
-			Id:            a.ID,
+			Id:            a.SpotifyID,
 			SpotifyId:     a.SpotifyID,
 			Name:          a.Name,
 			ExternalUrls:  a.ExternalUrls,
@@ -106,13 +107,14 @@ func toProtoAlbums(in []models.Album) []*v1.Album {
 	out := make([]*v1.Album, len(in))
 	for i, a := range in {
 		out[i] = &v1.Album{
-			Id:            a.ID,
+			Id:            a.SpotifyID,
 			SpotifyId:     a.SpotifyID,
 			Name:          a.Name,
 			AlbumType:     a.AlbumType,
 			ExternalUrls:  a.ExternalUrls,
 			AlbumImageUrl: a.AlbumImageUrl,
 			Genres:        a.Genres,
+			Artists:       toProtoArtists(a.Artists),
 		}
 	}
 	return out

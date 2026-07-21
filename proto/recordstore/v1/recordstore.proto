@@ -20,6 +20,7 @@ message Album {
   string external_urls = 5;
   string album_image_url = 6;
   string genres = 7;
+  repeated Artist artists = 8;
 }
 
 message StatusRequest {}

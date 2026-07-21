@@ -106,6 +106,7 @@ type Album struct {
 	ExternalUrls  string                 `protobuf:"bytes,5,opt,name=external_urls,json=externalUrls,proto3" json:"external_urls,omitempty"`
 	AlbumImageUrl string                 `protobuf:"bytes,6,opt,name=album_image_url,json=albumImageUrl,proto3" json:"album_image_url,omitempty"`
 	Genres        string                 `protobuf:"bytes,7,opt,name=genres,proto3" json:"genres,omitempty"`
+	Artists       []*Artist              `protobuf:"bytes,8,rep,name=artists,proto3" json:"artists,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -187,6 +188,13 @@ func (x *Album) GetGenres() string {
 		return x.Genres
 	}
 	return ""
+}
+
+func (x *Album) GetArtists() []*Artist {
+	if x != nil {
+		return x.Artists
+	}
+	return nil
 }
 
 type StatusRequest struct {
@@ -576,7 +584,7 @@ const file_recordstore_v1_recordstore_proto_rawDesc = "" +
 	"spotify_id\x18\x02 \x01(\tR\tspotifyId\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12#\n" +
 	"\rexternal_urls\x18\x04 \x01(\tR\fexternalUrls\x12&\n" +
-	"\x0falbum_image_url\x18\x05 \x01(\tR\ralbumImageUrl\"\xce\x01\n" +
+	"\x0falbum_image_url\x18\x05 \x01(\tR\ralbumImageUrl\"\x80\x02\n" +
 	"\x05Album\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -586,7 +594,8 @@ const file_recordstore_v1_recordstore_proto_rawDesc = "" +
 	"album_type\x18\x04 \x01(\tR\talbumType\x12#\n" +
 	"\rexternal_urls\x18\x05 \x01(\tR\fexternalUrls\x12&\n" +
 	"\x0falbum_image_url\x18\x06 \x01(\tR\ralbumImageUrl\x12\x16\n" +
-	"\x06genres\x18\a \x01(\tR\x06genres\"\x0f\n" +
+	"\x06genres\x18\a \x01(\tR\x06genres\x120\n" +
+	"\aartists\x18\b \x03(\v2\x16.recordstore.v1.ArtistR\aartists\"\x0f\n" +
 	"\rStatusRequest\"d\n" +
 	"\x0eStatusResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12 \n" +
@@ -638,23 +647,24 @@ var file_recordstore_v1_recordstore_proto_goTypes = []any{
 	(*GetUserMusicDataResponse)(nil),   // 9: recordstore.v1.GetUserMusicDataResponse
 }
 var file_recordstore_v1_recordstore_proto_depIdxs = []int32{
-	0, // 0: recordstore.v1.GetFollowedArtistsResponse.artists:type_name -> recordstore.v1.Artist
-	1, // 1: recordstore.v1.GetSavedAlbumsResponse.albums:type_name -> recordstore.v1.Album
-	1, // 2: recordstore.v1.GetUserMusicDataResponse.albums:type_name -> recordstore.v1.Album
-	0, // 3: recordstore.v1.GetUserMusicDataResponse.artists:type_name -> recordstore.v1.Artist
-	2, // 4: recordstore.v1.RecordStoreService.Status:input_type -> recordstore.v1.StatusRequest
-	4, // 5: recordstore.v1.RecordStoreService.GetFollowedArtists:input_type -> recordstore.v1.GetFollowedArtistsRequest
-	6, // 6: recordstore.v1.RecordStoreService.GetSavedAlbums:input_type -> recordstore.v1.GetSavedAlbumsRequest
-	8, // 7: recordstore.v1.RecordStoreService.GetUserMusicData:input_type -> recordstore.v1.GetUserMusicDataRequest
-	3, // 8: recordstore.v1.RecordStoreService.Status:output_type -> recordstore.v1.StatusResponse
-	5, // 9: recordstore.v1.RecordStoreService.GetFollowedArtists:output_type -> recordstore.v1.GetFollowedArtistsResponse
-	7, // 10: recordstore.v1.RecordStoreService.GetSavedAlbums:output_type -> recordstore.v1.GetSavedAlbumsResponse
-	9, // 11: recordstore.v1.RecordStoreService.GetUserMusicData:output_type -> recordstore.v1.GetUserMusicDataResponse
-	8, // [8:12] is the sub-list for method output_type
-	4, // [4:8] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	0, // 0: recordstore.v1.Album.artists:type_name -> recordstore.v1.Artist
+	0, // 1: recordstore.v1.GetFollowedArtistsResponse.artists:type_name -> recordstore.v1.Artist
+	1, // 2: recordstore.v1.GetSavedAlbumsResponse.albums:type_name -> recordstore.v1.Album
+	1, // 3: recordstore.v1.GetUserMusicDataResponse.albums:type_name -> recordstore.v1.Album
+	0, // 4: recordstore.v1.GetUserMusicDataResponse.artists:type_name -> recordstore.v1.Artist
+	2, // 5: recordstore.v1.RecordStoreService.Status:input_type -> recordstore.v1.StatusRequest
+	4, // 6: recordstore.v1.RecordStoreService.GetFollowedArtists:input_type -> recordstore.v1.GetFollowedArtistsRequest
+	6, // 7: recordstore.v1.RecordStoreService.GetSavedAlbums:input_type -> recordstore.v1.GetSavedAlbumsRequest
+	8, // 8: recordstore.v1.RecordStoreService.GetUserMusicData:input_type -> recordstore.v1.GetUserMusicDataRequest
+	3, // 9: recordstore.v1.RecordStoreService.Status:output_type -> recordstore.v1.StatusResponse
+	5, // 10: recordstore.v1.RecordStoreService.GetFollowedArtists:output_type -> recordstore.v1.GetFollowedArtistsResponse
+	7, // 11: recordstore.v1.RecordStoreService.GetSavedAlbums:output_type -> recordstore.v1.GetSavedAlbumsResponse
+	9, // 12: recordstore.v1.RecordStoreService.GetUserMusicData:output_type -> recordstore.v1.GetUserMusicDataResponse
+	9, // [9:13] is the sub-list for method output_type
+	5, // [5:9] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_recordstore_v1_recordstore_proto_init() }

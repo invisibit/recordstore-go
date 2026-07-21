@@ -9,8 +9,9 @@ import (
 func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 
-	connectPath, connectHandler := recordstorev1connect.NewRecordStoreServiceHandler(app)
-	mux.Handle(connectPath, connectHandler)
+	// connectPath, connectHandler := recordstorev1connect.NewRecordStoreServiceHandler(app)
+	// mux.Handle(connectPath, connectHandler)
+	mux.Handle(recordstorev1connect.NewRecordStoreServiceHandler(app))
 
 	// OAuth callbacks stay as plain HTTP — providers redirect browsers here.
 	mux.HandleFunc("/v1/spotify/callback", app.spotifyCallbackHandler)

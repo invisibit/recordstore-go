@@ -409,9 +409,9 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 				ExternalUrls:  item.Album.ExternalUrls.Spotify,
 				AlbumImageUrl: albumImage, // decide which one
 				Genres:        genres,
-				// Artists:       artists,
+				Artists:       artists,
 			}
-			fmt.Println("GetSpotifyUserSavedAlbums Album Title:", curAlbum.Name)
+			// fmt.Println("GetSpotifyUserSavedAlbums Album Title:", curAlbum.Name)
 			albums = append(albums, curAlbum)
 		}
 

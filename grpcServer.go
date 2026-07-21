@@ -38,14 +38,27 @@ func (app *application) GetFollowedArtists(
 }
 
 func (app *application) GetSavedAlbums(ctx context.Context, req *connect.Request[v1.GetSavedAlbumsRequest]) (*connect.Response[v1.GetSavedAlbumsResponse], error) {
-	adapter := adapters.NewAdapter("")
-	err, albums := adapter.GetSpotifyUserSavedAlbums(req.Msg.SptfySession)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
+	sptfySession := req.URL.Query().Get("sptfySession")
+
+	// Check if a current session
+	existingUser, _ := models.GetExistingSession(cfg.db.conn, sptfySession)
+
+	if existingUser.ID == 0 && sptfySession != "" {
+		adapter := adapters.NewAdapter("")
+		err, albums := adapter.GetSpotifyUserSavedAlbums(req.Msg.SptfySession)
+		if err != nil {
+			return nil, connect.NewError(connect.CodeInternal, err)
+		}
+
+		return connect.NewResponse(&v1.GetSavedAlbumsResponse{
+			Albums: toProtoAlbums(albums),
+		}), nil
+
+	} else {
+		// Existing user
+		// Pull from dastabase
+		return nil, connect.NewError(connect.CodeUnimplemented, fmt.Errorf("GetSavedAlbums for existing users not implemented yet"))
 	}
-	return connect.NewResponse(&v1.GetSavedAlbumsResponse{
-		Albums: toProtoAlbums(albums),
-	}), nil
 }
 
 func (app *application) GetUserMusicData(

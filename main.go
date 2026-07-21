@@ -1,8 +1,8 @@
 package main
 
 import (
-	"recordstore-go/models"
 	"recordstore-go/adapters"
+	"recordstore-go/models"
 
 	"flag"
 	"fmt"
@@ -13,13 +13,20 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
+// TODOS - 20240103
+// Add route for existing user
+// Move controllers to controller directory
+// Add text in UI to update a service data click on the service button
+
 const version = "1.0.1"
 
-type config struct {
+type Config struct {
 	port          string
 	env           string
 	client_id     string
@@ -27,6 +34,7 @@ type config struct {
 	ui_address    string
 
 	db struct {
+		conn     *gorm.DB
 		dsn      string
 		user     string
 		password string
@@ -34,22 +42,16 @@ type config struct {
 		dbPort   string
 	}
 
-	vertex			adapters.VertexModelParams
-}
-
-type AppStatus struct {
-	Status      string `json:"status"`
-	Environment string `json:"environment"`
-	Version     string `json:"version"`
+	vertex adapters.VertexModelParams
 }
 
 type application struct {
-	config config
+	config Config
 	logger *log.Logger
 	// models models.Models
 }
 
-var cfg config
+var cfg Config
 
 func main() {
 
@@ -91,19 +93,25 @@ func main() {
 
 	// Set up database connection
 	if cfg.db.dsn != "" {
-		db, err := gorm.Open(postgres.New(postgres.Config{
-			DSN: "host=localhost user=" + cfg.db.user + " password=" + cfg.db.password + " dbname=" + cfg.db.dbName + " port=" + cfg.db.dbPort + " sslmode=disable", // data source name, refer https://github.com/jackc/pgx
-			PreferSimpleProtocol: true,                                                                                                                                           // disables implicit prepared statement usage. By default pgx automatically uses the extended protocol
+		conn, err := gorm.Open(postgres.New(postgres.Config{
+			DSN:                  "host=localhost user=" + cfg.db.user + " password=" + cfg.db.password + " dbname=" + cfg.db.dbName + " port=" + cfg.db.dbPort + " sslmode=disable", // data source name, refer https://github.com/jackc/pgx
+			PreferSimpleProtocol: true,                                                                                                                                               // disables implicit prepared statement usage. By default pgx automatically uses the extended protocol
 		}), &gorm.Config{})
-		// defer db.close()
+		// defer conn.Close()
+		cfg.db.conn = conn
 
 		if err != nil {
 			log.Println(err)
 		}
 
 		// Migrate the schema(probably move to a seperate function)
-		// _ = db.Exec("CREATE DATABASE IF NOT EXISTS record_store;")
-		db.AutoMigrate(&models.Artist{})
+		_ = conn.Exec("CREATE DATABASE IF NOT EXISTS record_store;")
+		conn.AutoMigrate(&models.Album{})
+		conn.AutoMigrate(&models.Artist{})
+		conn.AutoMigrate(&models.User{})
+		conn.AutoMigrate(&models.UserArtist{})
+		conn.AutoMigrate(&models.UserAlbum{})
+
 	}
 
 	hostname := ""
@@ -114,7 +122,7 @@ func main() {
 	}
 	srv := &http.Server{
 		Addr:         fmt.Sprintf("%s:%s", hostname, cfg.port),
-		Handler:      app.routes(),
+		Handler:      h2c.NewHandler(app.routes(), &http2.Server{}),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
@@ -124,7 +132,8 @@ func main() {
 
 	// fmt.Println("Config struct", cfg)
 
-	srvErr := srv.ListenAndServe()
+	// srvErr := srv.ListenAndServe()
+	srvErr := srv.ListenAndServeTLS("localhost+2.pem", "localhost+2-key.pem")
 	if srvErr != nil {
 		log.Println(srvErr)
 	}

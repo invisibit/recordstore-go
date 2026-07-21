@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package recordstore.v1;
+
+option go_package = "recordstore-go/gen/recordstore/v1;recordstorev1";
+
+message Artist {
+  string id = 1;
+  string spotify_id = 2;
+  string name = 3;
+  string external_urls = 4;
+  string album_image_url = 5;
+}
+
+message Album {
+  string id = 1;
+  string spotify_id = 2;
+  string name = 3;
+  string album_type = 4;
+  string external_urls = 5;
+  string album_image_url = 6;
+  string genres = 7;
+  repeated Artist artists = 8;
+}
+
+message StatusRequest {}
+
+message StatusResponse {
+  string status = 1;
+  string environment = 2;
+  string version = 3;
+}
+
+// Prefer carrying the Spotify session via an Authorization header
+// through a Connect interceptor; the sptfy_session field is a
+// transitional fallback to match the existing query-param flow.
+
+message GetFollowedArtistsRequest {
+  string sptfy_session = 1;
+}
+
+message GetFollowedArtistsResponse {
+  repeated Artist artists = 1;
+}
+
+message GetSavedAlbumsRequest {
+  string sptfy_session = 1;
+}
+
+message GetSavedAlbumsResponse {
+  repeated Album albums = 1;
+}
+
+message GetUserMusicDataRequest {
+  string sptfy_session = 1;
+}
+
+message GetUserMusicDataResponse {
+  repeated Album albums = 1;
+  repeated Artist artists = 2;
+  string analysis = 3;
+}
+
+service RecordStoreService {
+  rpc Status(StatusRequest) returns (StatusResponse);
+  rpc GetFollowedArtists(GetFollowedArtistsRequest) returns (GetFollowedArtistsResponse);
+  rpc GetSavedAlbums(GetSavedAlbumsRequest) returns (GetSavedAlbumsResponse);
+  rpc GetUserMusicData(GetUserMusicDataRequest) returns (GetUserMusicDataResponse);
+}

@@ -3,7 +3,7 @@ package adapters
 import (
 	"crypto/tls"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -38,7 +38,7 @@ func (a *Adapters) ArtistsResponseRequest(artists models.ArtistList) error {
 	}
 	// fmt.Println(resp.Header)
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("%s", err)
 		return err

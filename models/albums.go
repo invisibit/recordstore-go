@@ -7,14 +7,21 @@ import (
 )
 
 type Album struct {
-	ID            uint   `json:"id"`
-	SpotifyID     string `json:"spotify_id"`
-	Name          string `json:"name"`
-	AlbumType     string `json:"album_type"`
-	ExternalUrls  string `json:"external_urls"`
-	AlbumImageUrl string `json:"album_image_urls"`
-	Genres        string `json:"genres"`
-	// Artists       ArtistList `json:"artists"`
+	ID                   uint       `json:"id"`
+	SpotifyID            string     `json:"spotify_id"`
+	Name                 string     `json:"name"`
+	AlbumType            string     `json:"album_type"`
+	TotalTracks          int        `json:"total_tracks"`
+	AvailableMarkets     string     `json:"available_markets"`
+	ExternalUrls         string     `json:"external_urls"`
+	Href                 string     `json:"href"`
+	AlbumImageUrl        string     `json:"album_image_urls"`
+	ReleaseDate          string     `json:"release_date"`
+	ReleaseDatePrecision string     `json:"release_date_precision"`
+	Restrictions         string     `json:"restrictions"`
+	SpotifyURI           string     `json:"spotify_uri"`
+	Genres               string     `json:"genres"` // Deprecated
+	Artists              ArtistList `json:"artists"`
 }
 
 type AlbumList []Album

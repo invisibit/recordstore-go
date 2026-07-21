@@ -4,15 +4,15 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 
 	// "log"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+
 	// "sort"
 	"strings"
-
 	// "recordstore-go/models"
 )
 
@@ -63,7 +63,7 @@ func (a *Adapters) GetAmazonUserAccessToken(code string, client_id string, clien
 	}
 	fmt.Println(resp.Header)
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("%s", err)
 		return err, ""
@@ -80,4 +80,3 @@ func (a *Adapters) GetAmazonUserAccessToken(code string, client_id string, clien
 
 	return nil, userToken.Access_token
 }
-

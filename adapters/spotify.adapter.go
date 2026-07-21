@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 
 	// "log"
 	"net/http"
@@ -123,7 +123,7 @@ func (a *Adapters) OpenSpotifyConnection(client_id string, client_secret string)
 	}
 	// fmt.Println(resp.Header)
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("%s", err)
 		return err
@@ -175,7 +175,7 @@ func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, clie
 	}
 	fmt.Println(resp.Header)
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("%s", err)
 		return err, ""
@@ -233,7 +233,7 @@ func (a *Adapters) GetSpotifyUserData(userToken string) error {
 	}
 	fmt.Println(resp.Header)
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("%s", err)
 		return err
@@ -245,7 +245,7 @@ func (a *Adapters) GetSpotifyUserData(userToken string) error {
 
 func (a *Adapters) GetSpotifyUserFollowedArtists(userToken string) (error, []models.Artist) {
 	fmt.Println("**************************************************************************")
-	fmt.Println("GetSpotifyUserFollowedArtists: ")
+	fmt.Println("GetSpotifyUserFollowedArtists")
 
 	var followedArtists SpotifyFollowed
 	var artists models.ArtistList
@@ -272,28 +272,24 @@ func (a *Adapters) GetSpotifyUserFollowedArtists(userToken string) (error, []mod
 		if err != nil {
 			fmt.Printf("%s", err)
 		}
-		fmt.Println(resp.Header)
-		fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+		// fmt.Println(resp.Header)
+		// fmt.Println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
-		fmt.Println(resp.Body)
+		// fmt.Println(resp.Body)
 
 		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			fmt.Printf("%s", err)
+			fmt.Printf("Error: %s", err)
 			return err, artists
 		}
 
 		// Parse []byte to the go struct pointer
 		if err := json.Unmarshal(body, &followedArtists); err != nil {
-			fmt.Println("Can not unmarshal JSON")
+			fmt.Println("Error: Can not unmarshal JSON")
 			return err, artists
 		}
 
-		// if len(artists) > 39 {
-		// 	fmt.Println("followedArtists.Artists", followedArtists.Artists)
-		// }
-		// Convert return Artists to Artist model
 		for _, artist := range followedArtists.Artists.Items {
 			// Check if there is an associated image for the artist
 			artistImage := ""
@@ -309,6 +305,8 @@ func (a *Adapters) GetSpotifyUserFollowedArtists(userToken string) (error, []mod
 				AlbumImageUrl: artistImage, // decide which one
 			}
 			artists = append(artists, curArtist)
+			fmt.Println("GetSpotifyUserFollowedArtists Artist:", artist.Name)
+			fmt.Println("GetSpotifyUserFollowedArtists curArtist:", curArtist.Name)
 		}
 
 		urlRequest = followedArtists.Artists.Next
@@ -327,6 +325,7 @@ func (a *Adapters) GetSpotifyUserFollowedArtists(userToken string) (error, []mod
 func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.Album) {
 	fmt.Println("**************************************************************************")
 	fmt.Println("GetSpotifyUserSavedAlbums Enter")
+	fmt.Println("**************************************************************************")
 
 	var savedAlbums SpotifyAlbums
 	var albums []models.Album
@@ -351,20 +350,20 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 
 		resp, err := client.Do(req)
 		if err != nil {
-			fmt.Printf("%s", err)
+			fmt.Printf("GetSpotifyUserSavedAlbums Error: %s", err)
 			return err, albums
 		}
 
 		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			fmt.Printf("%s", err)
+			fmt.Printf("GetSpotifyUserSavedAlbums Error: %s", err)
 			return err, albums
 		}
 
 		// Parse []byte to the go struct pointer
 		if err := json.Unmarshal(body, &savedAlbums); err != nil {
-			fmt.Println("Can not unmarshal JSON")
+			fmt.Println("GetSpotifyUserSavedAlbums Error: Can not unmarshal JSON")
 			return err, albums
 		}
 
@@ -410,8 +409,9 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 				ExternalUrls:  item.Album.ExternalUrls.Spotify,
 				AlbumImageUrl: albumImage, // decide which one
 				Genres:        genres,
-				// Artists:       artists,
+				Artists:       artists,
 			}
+			// fmt.Println("GetSpotifyUserSavedAlbums Album Title:", curAlbum.Name)
 			albums = append(albums, curAlbum)
 		}
 
@@ -420,6 +420,7 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 		if len(albums) >= savedAlbums.Total {
 			isFinished = true
 		}
+
 	}
 
 	return nil, albums

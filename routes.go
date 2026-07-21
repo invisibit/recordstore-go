@@ -3,24 +3,19 @@ package main
 import (
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
+	"recordstore-go/gen/recordstore/v1/recordstorev1connect"
 )
 
 func (app *application) routes() http.Handler {
-	router := httprouter.New()
+	mux := http.NewServeMux()
 
-	router.HandlerFunc(http.MethodGet, "/status", app.statusHandler)
+	// connectPath, connectHandler := recordstorev1connect.NewRecordStoreServiceHandler(app)
+	// mux.Handle(connectPath, connectHandler)
+	mux.Handle(recordstorev1connect.NewRecordStoreServiceHandler(app))
 
-	router.HandlerFunc(http.MethodGet, "/v1/user", app.userHandler)
-	router.HandlerFunc(http.MethodGet, "/v1/user/library", app.userLibraryHandler)
+	// OAuth callbacks stay as plain HTTP — providers redirect browsers here.
+	mux.HandleFunc("/v1/spotify/callback", app.spotifyCallbackHandler)
+	mux.HandleFunc("/v1/amazon/callback", app.amazonCallbackHandler)
 
-	router.HandlerFunc(http.MethodGet, "/v1/spotify/callback", app.spotifyCallbackHandler)
-	router.HandlerFunc(http.MethodGet, "/v1/spotify/followed", app.spotifyFollowedArtistsHandler)
-	router.HandlerFunc(http.MethodGet, "/v1/spotify/savedAlbums", app.spotifySavedAlbumsHandler)
-	router.HandlerFunc(http.MethodGet, "/v1/spotify/userMusicData", app.spotifyUserMusicDataHandler)
-	router.HandlerFunc(http.MethodPost, "/v1/spotify/playBack", app.spotifyDevicePlayback)
-
-	router.HandlerFunc(http.MethodGet, "/v1/amazon/callback", app.amazonCallbackHandler)
-
-	return app.enableCORS(router)
+	return app.enableCORS(mux)
 }

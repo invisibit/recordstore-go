@@ -2,4 +2,4 @@ version: v2
 plugins:
   - remote: buf.build/bufbuild/es
     out: ../recordstore-ui/src/gen
-    opt: target=js+dts
+    opt: target=ts+dts

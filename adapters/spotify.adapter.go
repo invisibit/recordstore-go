@@ -136,7 +136,6 @@ func (a *Adapters) OpenSpotifyConnection(client_id string, client_secret string)
 
 func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, client_secret string, redirectHost string) (error, string) {
 	fmt.Println("GetSpotifyUserAccessToken")
-	fmt.Println("GetSpotifyUserAccessToken", redirectHost)
 
 	// Retrieve token from api
 	urlReguest := "https://accounts.spotify.com/api/token"
@@ -166,7 +165,7 @@ func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, clie
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.SetBasicAuth(client_id, client_secret)
 
-	fmt.Println("Req body:", req.Body)
+	// fmt.Println("GetSpotifyUserAccessToken Req body:", req.Body)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -180,7 +179,6 @@ func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, clie
 		fmt.Printf("%s", err)
 		return err, ""
 	}
-	fmt.Println("GetSpotifyUserAccessToken response:", string(body))
 
 	var userToken SpotifyUserToken
 	if err := json.Unmarshal(body, &userToken); err != nil { // Parse []byte to the go struct pointer
@@ -188,21 +186,9 @@ func (a *Adapters) GetSpotifyUserAccessToken(code string, client_id string, clie
 		return err, ""
 	}
 
-	fmt.Println("JSON response", userToken.Access_token)
+	// fmt.Println("GetSpotifyUserAccessToken JSON response", userToken.Access_token)
 
 	return nil, userToken.Access_token
-
-	// GetSpotifyUserData(userToken.Access_token)
-	// err, followedArtists = GetSpotifyUserFollowedArtists(userToken.Access_token)
-
-	// return nil, followedArtists
-
-	// resp, err := http.Get(urlReguest)
-	// if err != nil {1
-	// 	log.Fatal("worker error ", urlReguest)
-	// 	return
-	// }
-
 }
 
 func (a *Adapters) GetSpotifyUserData(userToken string) error {
@@ -241,6 +227,40 @@ func (a *Adapters) GetSpotifyUserData(userToken string) error {
 	fmt.Println(string(body))
 
 	return nil
+}
+
+func (a *Adapters) GetSpotifyUserDisplayName(userToken string) (string, error) {
+	tr := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
+	client := &http.Client{
+		Transport: tr,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+
+	req, err := http.NewRequest("GET", "https://api.spotify.com/v1/me", strings.NewReader(""))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Add("Authorization", "Bearer "+userToken)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	var profile struct {
+		DisplayName string `json:"display_name"`
+	}
+	if err := json.Unmarshal(body, &profile); err != nil {
+		return "", err
+	}
+	return profile.DisplayName, nil
 }
 
 func (a *Adapters) GetSpotifyUserFollowedArtists(userToken string) (error, []models.Artist) {
@@ -331,7 +351,7 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 	var albums []models.Album
 
 	// Retrieve token from api
-	urlRequest := "https://api.spotify.com/v1/me/albums"
+	urlRequest := "https://api.spotify.com/v1/me/albums?limit=50"
 
 	cookieJar, _ := cookiejar.New(nil)
 	tr := &http.Transport{
@@ -345,6 +365,7 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 
 	var isFinished = false
 	for !isFinished {
+		fmt.Println("GetSpotifyUserSavedAlbums urlRequest", urlRequest)
 		req, err := http.NewRequest("GET", urlRequest, strings.NewReader(""))
 		req.Header.Add("Authorization", "Bearer "+userToken)
 
@@ -356,6 +377,7 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 
 		defer resp.Body.Close()
 		body, err := io.ReadAll(resp.Body)
+		fmt.Println("GetSpotifyUserSavedAlbums received")
 		if err != nil {
 			fmt.Printf("GetSpotifyUserSavedAlbums Error: %s", err)
 			return err, albums
@@ -367,12 +389,6 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 			return err, albums
 		}
 
-		// if len(albums) > 39 {
-		// 	fmt.Println("savedAlbums.Artists", savedAlbums.Albums)
-		// }
-		// fmt.Println("Saved:", savedAlbums)
-		// Convert return Artists to Artist model
-		// fmt.Println("GetSpotifyUserSavedAlbums number albums", len(savedAlbums.Items))
 		for _, item := range savedAlbums.Items {
 			// Check if there is an associated image for the artist
 			albumImage := ""

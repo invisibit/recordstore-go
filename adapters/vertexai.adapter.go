@@ -24,9 +24,9 @@ type VertexData struct {
 }
 
 type VertexModelParams struct {
-	Location	string 
-	Publisher	string 
-	Model		string 
+	Location  string
+	Publisher string
+	Model     string
 }
 
 // var analysisPrompt = "Write a paragraph cynically describing the music tastes of someone that likes the following artists: "
@@ -41,7 +41,7 @@ func (a *Adapters) TextPredict(w io.Writer, artists []models.Artist, projectID s
 
 	client, err := aiplatform.NewPredictionClient(ctx, option.WithEndpoint(apiEndpoint))
 	if err != nil {
-		fmt.Println("unable to create prediction client: %v", err)
+		fmt.Printf("unable to create prediction client: %v\n", err)
 		return err, ""
 	}
 	defer client.Close()
@@ -73,14 +73,14 @@ func (a *Adapters) TextPredict(w io.Writer, artists []models.Artist, projectID s
 		"prompt": prompt,
 	})
 	if err != nil {
-		fmt.Println("unable to convert prompt to Value: %v", err)
+		fmt.Printf("unable to convert prompt to Value: %v\n", err)
 		return err, ""
 	}
 
 	// Parameters: the model configuration parameters
 	parametersValue, err := structpb.NewValue(parameters)
 	if err != nil {
-		fmt.Println("unable to convert parameters to Value: %v", err)
+		fmt.Printf("unable to convert parameters to Value: %v\n", err)
 		return err, ""
 	}
 
@@ -94,7 +94,7 @@ func (a *Adapters) TextPredict(w io.Writer, artists []models.Artist, projectID s
 	// PredictResponse: receive the response from the model
 	resp, err := client.Predict(ctx, req)
 	if err != nil {
-		fmt.Println("TextPredict error in prediction: %v", err)
+		fmt.Printf("TextPredict error in prediction: %v\n", err)
 		fmt.Println("req:", req)
 		fmt.Print("Prompt length:", len(prompt))
 		return err, "TextPredict error"

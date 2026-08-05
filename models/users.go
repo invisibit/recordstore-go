@@ -9,26 +9,28 @@ import (
 )
 
 type User struct {
-	ID             uint      `gorm:"primaryKey" json:"id"`
-	CreatedAt      time.Time `json:"-"`
-	ModifiedAt     time.Time `json:"-"`
-	DeletedAt      time.Time `json:"-"`
-	UserName       string    `json:"user_name"`
-	SpotifySession string    `json:"spotify_session"`
-	Analysis       string    `json:"analysis"`
+	ID                  uint      `gorm:"primaryKey" json:"id"`
+	CreatedAt           time.Time `json:"-"`
+	ModifiedAt          time.Time `json:"-"`
+	DeletedAt           time.Time `json:"-"`
+	UserName            string    `json:"user_name"`
+	SpotifySession      string    `json:"spotify_session"`
+	YoutubeSession      string    `json:"youtube_session"`
+	YoutubeRefreshToken string    `json:"-"`
+	Analysis            string    `json:"analysis"`
 }
 
-type ServiceProviders struct {
-	mediaType string // artist, album, song, podcast
-	Spotify   bool   `json:"spotify"`
+type ConnectedProvider struct {
+	UserID      uint      `gorm:"primaryKey" json:"user_id"`
+	Provider    string    `gorm:"primaryKey" json:"provider"`
+	ConnectedAt time.Time `json:"connected_at"`
 }
 
 type UserArtist struct {
-	ID               uint `gorm:"primaryKey" json:"id"`
-	UserID           uint `json:"user_id"`
-	ArtistID         uint `json:"artist_id"`
-	Spotify          bool `json:"spotify"`
-	serviceProviders ServiceProviders
+	ID       uint `gorm:"primaryKey" json:"id"`
+	UserID   uint `json:"user_id"`
+	ArtistID uint `json:"artist_id"`
+	Spotify  bool `json:"spotify"`
 }
 
 type UserAlbum struct {
@@ -48,6 +50,27 @@ func (u *User) CreateUser(db *gorm.DB) error {
 
 	fmt.Println("User:CreateUser Success", u)
 	return nil
+}
+
+func (u *User) UpdateUser(db *gorm.DB) error {
+	result := db.Save(&u)
+	return result.Error
+}
+
+func GetUserByID(db *gorm.DB, id uint) (User, error) {
+	var user User
+	if err := db.First(&user, id).Error; err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
+func (u *User) GetConnectedProviders(db *gorm.DB) ([]ConnectedProvider, error) {
+	var cps []ConnectedProvider
+	if err := db.Where("user_id = ?", u.ID).Find(&cps).Error; err != nil {
+		return cps, err
+	}
+	return cps, nil
 }
 
 func (u *User) CreateUserSpotifySession(db *gorm.DB, sessionID string) error {
@@ -71,9 +94,9 @@ func (u *User) GetUser(db *gorm.DB, sessionID string) {
 	db.First(&u, u.ID)
 }
 
-func GetExistingSession(db *gorm.DB, sessionID string) (User, error) {
+func GetExistingSessionByUserID(db *gorm.DB, userID string) (User, error) {
 	var user User
-	result := db.Where("spotify_session = ?", sessionID).First(&user)
+	result := db.Where("id = ?", userID).First(&user)
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {

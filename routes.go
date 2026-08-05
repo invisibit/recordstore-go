@@ -15,6 +15,7 @@ func (app *application) routes() http.Handler {
 
 	// OAuth callbacks stay as plain HTTP — providers redirect browsers here.
 	mux.HandleFunc("/v1/spotify/callback", app.spotifyCallbackHandler)
+	mux.HandleFunc("/v1/youtube/callback", app.youtubeCallbackHandler)
 	mux.HandleFunc("/v1/amazon/callback", app.amazonCallbackHandler)
 
 	return app.enableCORS(mux)

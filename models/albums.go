@@ -21,7 +21,7 @@ type Album struct {
 	Restrictions         string     `json:"restrictions"`
 	SpotifyURI           string     `json:"spotify_uri"`
 	Genres               string     `json:"genres"` // Deprecated
-	Artists              ArtistList `json:"artists"`
+	Artists              ArtistList `gorm:"-" json:"artists"`
 }
 
 type AlbumList []Album

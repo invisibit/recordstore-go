@@ -13,6 +13,7 @@ var corsAllowedHeaders = strings.Join([]string{
 	"Grpc-Timeout",
 	"X-Grpc-Web",
 	"X-User-Agent",
+	"X-User-Id",
 }, ", ")
 
 var corsExposedHeaders = strings.Join([]string{
@@ -27,6 +28,7 @@ func (app *application) enableCORS(next http.Handler) http.Handler {
 		if app.originAllowed(origin) {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Add("Vary", "Origin")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", corsAllowedHeaders)
 			w.Header().Set("Access-Control-Expose-Headers", corsExposedHeaders)
@@ -47,7 +49,14 @@ func (app *application) originAllowed(origin string) bool {
 		return false
 	}
 	if app.config.env == "develop" {
-		return origin == "http://localhost:3000" || origin == "https://localhost:3000"
+		switch origin {
+		case "http://localhost:3000",
+			"https://localhost:3000",
+			"http://127.0.0.1:3000",
+			"https://127.0.0.1:3000":
+			return true
+		}
+		return false
 	}
-	return origin == "https://"+app.config.ui_address
+	return origin == "https://"+app.config.ui_address+":"+app.config.ui_port
 }

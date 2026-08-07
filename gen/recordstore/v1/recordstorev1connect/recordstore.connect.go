@@ -42,9 +42,15 @@ const (
 	// RecordStoreServiceGetSavedAlbumsProcedure is the fully-qualified name of the RecordStoreService's
 	// GetSavedAlbums RPC.
 	RecordStoreServiceGetSavedAlbumsProcedure = "/recordstore.v1.RecordStoreService/GetSavedAlbums"
+	// RecordStoreServiceGetYoutubeSavedAlbumsProcedure is the fully-qualified name of the
+	// RecordStoreService's GetYoutubeSavedAlbums RPC.
+	RecordStoreServiceGetYoutubeSavedAlbumsProcedure = "/recordstore.v1.RecordStoreService/GetYoutubeSavedAlbums"
 	// RecordStoreServiceGetUserMusicDataProcedure is the fully-qualified name of the
 	// RecordStoreService's GetUserMusicData RPC.
 	RecordStoreServiceGetUserMusicDataProcedure = "/recordstore.v1.RecordStoreService/GetUserMusicData"
+	// RecordStoreServiceGetCurrentUserProcedure is the fully-qualified name of the RecordStoreService's
+	// GetCurrentUser RPC.
+	RecordStoreServiceGetCurrentUserProcedure = "/recordstore.v1.RecordStoreService/GetCurrentUser"
 )
 
 // RecordStoreServiceClient is a client for the recordstore.v1.RecordStoreService service.
@@ -52,7 +58,9 @@ type RecordStoreServiceClient interface {
 	Status(context.Context, *connect.Request[v1.StatusRequest]) (*connect.Response[v1.StatusResponse], error)
 	GetFollowedArtists(context.Context, *connect.Request[v1.GetFollowedArtistsRequest]) (*connect.Response[v1.GetFollowedArtistsResponse], error)
 	GetSavedAlbums(context.Context, *connect.Request[v1.GetSavedAlbumsRequest]) (*connect.Response[v1.GetSavedAlbumsResponse], error)
+	GetYoutubeSavedAlbums(context.Context, *connect.Request[v1.GetYoutubeSavedAlbumsRequest]) (*connect.Response[v1.GetYoutubeSavedAlbumsResponse], error)
 	GetUserMusicData(context.Context, *connect.Request[v1.GetUserMusicDataRequest]) (*connect.Response[v1.GetUserMusicDataResponse], error)
+	GetCurrentUser(context.Context, *connect.Request[v1.GetCurrentUserRequest]) (*connect.Response[v1.GetCurrentUserResponse], error)
 }
 
 // NewRecordStoreServiceClient constructs a client for the recordstore.v1.RecordStoreService
@@ -84,10 +92,22 @@ func NewRecordStoreServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithSchema(recordStoreServiceMethods.ByName("GetSavedAlbums")),
 			connect.WithClientOptions(opts...),
 		),
+		getYoutubeSavedAlbums: connect.NewClient[v1.GetYoutubeSavedAlbumsRequest, v1.GetYoutubeSavedAlbumsResponse](
+			httpClient,
+			baseURL+RecordStoreServiceGetYoutubeSavedAlbumsProcedure,
+			connect.WithSchema(recordStoreServiceMethods.ByName("GetYoutubeSavedAlbums")),
+			connect.WithClientOptions(opts...),
+		),
 		getUserMusicData: connect.NewClient[v1.GetUserMusicDataRequest, v1.GetUserMusicDataResponse](
 			httpClient,
 			baseURL+RecordStoreServiceGetUserMusicDataProcedure,
 			connect.WithSchema(recordStoreServiceMethods.ByName("GetUserMusicData")),
+			connect.WithClientOptions(opts...),
+		),
+		getCurrentUser: connect.NewClient[v1.GetCurrentUserRequest, v1.GetCurrentUserResponse](
+			httpClient,
+			baseURL+RecordStoreServiceGetCurrentUserProcedure,
+			connect.WithSchema(recordStoreServiceMethods.ByName("GetCurrentUser")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -95,10 +115,12 @@ func NewRecordStoreServiceClient(httpClient connect.HTTPClient, baseURL string, 
 
 // recordStoreServiceClient implements RecordStoreServiceClient.
 type recordStoreServiceClient struct {
-	status             *connect.Client[v1.StatusRequest, v1.StatusResponse]
-	getFollowedArtists *connect.Client[v1.GetFollowedArtistsRequest, v1.GetFollowedArtistsResponse]
-	getSavedAlbums     *connect.Client[v1.GetSavedAlbumsRequest, v1.GetSavedAlbumsResponse]
-	getUserMusicData   *connect.Client[v1.GetUserMusicDataRequest, v1.GetUserMusicDataResponse]
+	status                *connect.Client[v1.StatusRequest, v1.StatusResponse]
+	getFollowedArtists    *connect.Client[v1.GetFollowedArtistsRequest, v1.GetFollowedArtistsResponse]
+	getSavedAlbums        *connect.Client[v1.GetSavedAlbumsRequest, v1.GetSavedAlbumsResponse]
+	getYoutubeSavedAlbums *connect.Client[v1.GetYoutubeSavedAlbumsRequest, v1.GetYoutubeSavedAlbumsResponse]
+	getUserMusicData      *connect.Client[v1.GetUserMusicDataRequest, v1.GetUserMusicDataResponse]
+	getCurrentUser        *connect.Client[v1.GetCurrentUserRequest, v1.GetCurrentUserResponse]
 }
 
 // Status calls recordstore.v1.RecordStoreService.Status.
@@ -116,9 +138,19 @@ func (c *recordStoreServiceClient) GetSavedAlbums(ctx context.Context, req *conn
 	return c.getSavedAlbums.CallUnary(ctx, req)
 }
 
+// GetYoutubeSavedAlbums calls recordstore.v1.RecordStoreService.GetYoutubeSavedAlbums.
+func (c *recordStoreServiceClient) GetYoutubeSavedAlbums(ctx context.Context, req *connect.Request[v1.GetYoutubeSavedAlbumsRequest]) (*connect.Response[v1.GetYoutubeSavedAlbumsResponse], error) {
+	return c.getYoutubeSavedAlbums.CallUnary(ctx, req)
+}
+
 // GetUserMusicData calls recordstore.v1.RecordStoreService.GetUserMusicData.
 func (c *recordStoreServiceClient) GetUserMusicData(ctx context.Context, req *connect.Request[v1.GetUserMusicDataRequest]) (*connect.Response[v1.GetUserMusicDataResponse], error) {
 	return c.getUserMusicData.CallUnary(ctx, req)
+}
+
+// GetCurrentUser calls recordstore.v1.RecordStoreService.GetCurrentUser.
+func (c *recordStoreServiceClient) GetCurrentUser(ctx context.Context, req *connect.Request[v1.GetCurrentUserRequest]) (*connect.Response[v1.GetCurrentUserResponse], error) {
+	return c.getCurrentUser.CallUnary(ctx, req)
 }
 
 // RecordStoreServiceHandler is an implementation of the recordstore.v1.RecordStoreService service.
@@ -126,7 +158,9 @@ type RecordStoreServiceHandler interface {
 	Status(context.Context, *connect.Request[v1.StatusRequest]) (*connect.Response[v1.StatusResponse], error)
 	GetFollowedArtists(context.Context, *connect.Request[v1.GetFollowedArtistsRequest]) (*connect.Response[v1.GetFollowedArtistsResponse], error)
 	GetSavedAlbums(context.Context, *connect.Request[v1.GetSavedAlbumsRequest]) (*connect.Response[v1.GetSavedAlbumsResponse], error)
+	GetYoutubeSavedAlbums(context.Context, *connect.Request[v1.GetYoutubeSavedAlbumsRequest]) (*connect.Response[v1.GetYoutubeSavedAlbumsResponse], error)
 	GetUserMusicData(context.Context, *connect.Request[v1.GetUserMusicDataRequest]) (*connect.Response[v1.GetUserMusicDataResponse], error)
+	GetCurrentUser(context.Context, *connect.Request[v1.GetCurrentUserRequest]) (*connect.Response[v1.GetCurrentUserResponse], error)
 }
 
 // NewRecordStoreServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -154,10 +188,22 @@ func NewRecordStoreServiceHandler(svc RecordStoreServiceHandler, opts ...connect
 		connect.WithSchema(recordStoreServiceMethods.ByName("GetSavedAlbums")),
 		connect.WithHandlerOptions(opts...),
 	)
+	recordStoreServiceGetYoutubeSavedAlbumsHandler := connect.NewUnaryHandler(
+		RecordStoreServiceGetYoutubeSavedAlbumsProcedure,
+		svc.GetYoutubeSavedAlbums,
+		connect.WithSchema(recordStoreServiceMethods.ByName("GetYoutubeSavedAlbums")),
+		connect.WithHandlerOptions(opts...),
+	)
 	recordStoreServiceGetUserMusicDataHandler := connect.NewUnaryHandler(
 		RecordStoreServiceGetUserMusicDataProcedure,
 		svc.GetUserMusicData,
 		connect.WithSchema(recordStoreServiceMethods.ByName("GetUserMusicData")),
+		connect.WithHandlerOptions(opts...),
+	)
+	recordStoreServiceGetCurrentUserHandler := connect.NewUnaryHandler(
+		RecordStoreServiceGetCurrentUserProcedure,
+		svc.GetCurrentUser,
+		connect.WithSchema(recordStoreServiceMethods.ByName("GetCurrentUser")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/recordstore.v1.RecordStoreService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -168,8 +214,12 @@ func NewRecordStoreServiceHandler(svc RecordStoreServiceHandler, opts ...connect
 			recordStoreServiceGetFollowedArtistsHandler.ServeHTTP(w, r)
 		case RecordStoreServiceGetSavedAlbumsProcedure:
 			recordStoreServiceGetSavedAlbumsHandler.ServeHTTP(w, r)
+		case RecordStoreServiceGetYoutubeSavedAlbumsProcedure:
+			recordStoreServiceGetYoutubeSavedAlbumsHandler.ServeHTTP(w, r)
 		case RecordStoreServiceGetUserMusicDataProcedure:
 			recordStoreServiceGetUserMusicDataHandler.ServeHTTP(w, r)
+		case RecordStoreServiceGetCurrentUserProcedure:
+			recordStoreServiceGetCurrentUserHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -191,6 +241,14 @@ func (UnimplementedRecordStoreServiceHandler) GetSavedAlbums(context.Context, *c
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("recordstore.v1.RecordStoreService.GetSavedAlbums is not implemented"))
 }
 
+func (UnimplementedRecordStoreServiceHandler) GetYoutubeSavedAlbums(context.Context, *connect.Request[v1.GetYoutubeSavedAlbumsRequest]) (*connect.Response[v1.GetYoutubeSavedAlbumsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("recordstore.v1.RecordStoreService.GetYoutubeSavedAlbums is not implemented"))
+}
+
 func (UnimplementedRecordStoreServiceHandler) GetUserMusicData(context.Context, *connect.Request[v1.GetUserMusicDataRequest]) (*connect.Response[v1.GetUserMusicDataResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("recordstore.v1.RecordStoreService.GetUserMusicData is not implemented"))
+}
+
+func (UnimplementedRecordStoreServiceHandler) GetCurrentUser(context.Context, *connect.Request[v1.GetCurrentUserRequest]) (*connect.Response[v1.GetCurrentUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("recordstore.v1.RecordStoreService.GetCurrentUser is not implemented"))
 }

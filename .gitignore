@@ -1,3 +1,9 @@
 .env
 recordstore-go
-
+localhost+2-key.pem
+localhost+2.pem
+AGENTS.md
+CLAUDE.md
+log20260801.txt
+youtube_request_example.py
+ytmenv/

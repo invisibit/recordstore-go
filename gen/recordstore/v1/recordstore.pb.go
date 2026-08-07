@@ -384,6 +384,7 @@ func (x *GetFollowedArtistsResponse) GetArtists() []*Artist {
 type GetSavedAlbumsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SptfySession  string                 `protobuf:"bytes,1,opt,name=sptfy_session,json=sptfySession,proto3" json:"sptfy_session,omitempty"`
+	UserId        uint64                 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -423,6 +424,13 @@ func (x *GetSavedAlbumsRequest) GetSptfySession() string {
 		return x.SptfySession
 	}
 	return ""
+}
+
+func (x *GetSavedAlbumsRequest) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
 }
 
 type GetSavedAlbumsResponse struct {
@@ -469,6 +477,102 @@ func (x *GetSavedAlbumsResponse) GetAlbums() []*Album {
 	return nil
 }
 
+type GetYoutubeSavedAlbumsRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	YoutubeSession string                 `protobuf:"bytes,1,opt,name=youtube_session,json=youtubeSession,proto3" json:"youtube_session,omitempty"`
+	UserId         uint64                 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GetYoutubeSavedAlbumsRequest) Reset() {
+	*x = GetYoutubeSavedAlbumsRequest{}
+	mi := &file_recordstore_v1_recordstore_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetYoutubeSavedAlbumsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetYoutubeSavedAlbumsRequest) ProtoMessage() {}
+
+func (x *GetYoutubeSavedAlbumsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_recordstore_v1_recordstore_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetYoutubeSavedAlbumsRequest.ProtoReflect.Descriptor instead.
+func (*GetYoutubeSavedAlbumsRequest) Descriptor() ([]byte, []int) {
+	return file_recordstore_v1_recordstore_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetYoutubeSavedAlbumsRequest) GetYoutubeSession() string {
+	if x != nil {
+		return x.YoutubeSession
+	}
+	return ""
+}
+
+func (x *GetYoutubeSavedAlbumsRequest) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+type GetYoutubeSavedAlbumsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Albums        []*Album               `protobuf:"bytes,1,rep,name=albums,proto3" json:"albums,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetYoutubeSavedAlbumsResponse) Reset() {
+	*x = GetYoutubeSavedAlbumsResponse{}
+	mi := &file_recordstore_v1_recordstore_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetYoutubeSavedAlbumsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetYoutubeSavedAlbumsResponse) ProtoMessage() {}
+
+func (x *GetYoutubeSavedAlbumsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_recordstore_v1_recordstore_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetYoutubeSavedAlbumsResponse.ProtoReflect.Descriptor instead.
+func (*GetYoutubeSavedAlbumsResponse) Descriptor() ([]byte, []int) {
+	return file_recordstore_v1_recordstore_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetYoutubeSavedAlbumsResponse) GetAlbums() []*Album {
+	if x != nil {
+		return x.Albums
+	}
+	return nil
+}
+
 type GetUserMusicDataRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SptfySession  string                 `protobuf:"bytes,1,opt,name=sptfy_session,json=sptfySession,proto3" json:"sptfy_session,omitempty"`
@@ -478,7 +582,7 @@ type GetUserMusicDataRequest struct {
 
 func (x *GetUserMusicDataRequest) Reset() {
 	*x = GetUserMusicDataRequest{}
-	mi := &file_recordstore_v1_recordstore_proto_msgTypes[8]
+	mi := &file_recordstore_v1_recordstore_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -490,7 +594,7 @@ func (x *GetUserMusicDataRequest) String() string {
 func (*GetUserMusicDataRequest) ProtoMessage() {}
 
 func (x *GetUserMusicDataRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_recordstore_v1_recordstore_proto_msgTypes[8]
+	mi := &file_recordstore_v1_recordstore_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -503,7 +607,7 @@ func (x *GetUserMusicDataRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserMusicDataRequest.ProtoReflect.Descriptor instead.
 func (*GetUserMusicDataRequest) Descriptor() ([]byte, []int) {
-	return file_recordstore_v1_recordstore_proto_rawDescGZIP(), []int{8}
+	return file_recordstore_v1_recordstore_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetUserMusicDataRequest) GetSptfySession() string {
@@ -524,7 +628,7 @@ type GetUserMusicDataResponse struct {
 
 func (x *GetUserMusicDataResponse) Reset() {
 	*x = GetUserMusicDataResponse{}
-	mi := &file_recordstore_v1_recordstore_proto_msgTypes[9]
+	mi := &file_recordstore_v1_recordstore_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -536,7 +640,7 @@ func (x *GetUserMusicDataResponse) String() string {
 func (*GetUserMusicDataResponse) ProtoMessage() {}
 
 func (x *GetUserMusicDataResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_recordstore_v1_recordstore_proto_msgTypes[9]
+	mi := &file_recordstore_v1_recordstore_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -549,7 +653,7 @@ func (x *GetUserMusicDataResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserMusicDataResponse.ProtoReflect.Descriptor instead.
 func (*GetUserMusicDataResponse) Descriptor() ([]byte, []int) {
-	return file_recordstore_v1_recordstore_proto_rawDescGZIP(), []int{9}
+	return file_recordstore_v1_recordstore_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetUserMusicDataResponse) GetAlbums() []*Album {
@@ -571,6 +675,102 @@ func (x *GetUserMusicDataResponse) GetAnalysis() string {
 		return x.Analysis
 	}
 	return ""
+}
+
+type GetCurrentUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCurrentUserRequest) Reset() {
+	*x = GetCurrentUserRequest{}
+	mi := &file_recordstore_v1_recordstore_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCurrentUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCurrentUserRequest) ProtoMessage() {}
+
+func (x *GetCurrentUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_recordstore_v1_recordstore_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCurrentUserRequest.ProtoReflect.Descriptor instead.
+func (*GetCurrentUserRequest) Descriptor() ([]byte, []int) {
+	return file_recordstore_v1_recordstore_proto_rawDescGZIP(), []int{12}
+}
+
+type GetCurrentUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        uint64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Providers     []string               `protobuf:"bytes,3,rep,name=providers,proto3" json:"providers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCurrentUserResponse) Reset() {
+	*x = GetCurrentUserResponse{}
+	mi := &file_recordstore_v1_recordstore_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCurrentUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCurrentUserResponse) ProtoMessage() {}
+
+func (x *GetCurrentUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_recordstore_v1_recordstore_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCurrentUserResponse.ProtoReflect.Descriptor instead.
+func (*GetCurrentUserResponse) Descriptor() ([]byte, []int) {
+	return file_recordstore_v1_recordstore_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *GetCurrentUserResponse) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *GetCurrentUserResponse) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *GetCurrentUserResponse) GetProviders() []string {
+	if x != nil {
+		return x.Providers
+	}
+	return nil
 }
 
 var File_recordstore_v1_recordstore_proto protoreflect.FileDescriptor
@@ -604,22 +804,35 @@ const file_recordstore_v1_recordstore_proto_rawDesc = "" +
 	"\x19GetFollowedArtistsRequest\x12#\n" +
 	"\rsptfy_session\x18\x01 \x01(\tR\fsptfySession\"N\n" +
 	"\x1aGetFollowedArtistsResponse\x120\n" +
-	"\aartists\x18\x01 \x03(\v2\x16.recordstore.v1.ArtistR\aartists\"<\n" +
+	"\aartists\x18\x01 \x03(\v2\x16.recordstore.v1.ArtistR\aartists\"U\n" +
 	"\x15GetSavedAlbumsRequest\x12#\n" +
-	"\rsptfy_session\x18\x01 \x01(\tR\fsptfySession\"G\n" +
+	"\rsptfy_session\x18\x01 \x01(\tR\fsptfySession\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\x04R\x06userId\"G\n" +
 	"\x16GetSavedAlbumsResponse\x12-\n" +
+	"\x06albums\x18\x01 \x03(\v2\x15.recordstore.v1.AlbumR\x06albums\"`\n" +
+	"\x1cGetYoutubeSavedAlbumsRequest\x12'\n" +
+	"\x0fyoutube_session\x18\x01 \x01(\tR\x0eyoutubeSession\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\x04R\x06userId\"N\n" +
+	"\x1dGetYoutubeSavedAlbumsResponse\x12-\n" +
 	"\x06albums\x18\x01 \x03(\v2\x15.recordstore.v1.AlbumR\x06albums\">\n" +
 	"\x17GetUserMusicDataRequest\x12#\n" +
 	"\rsptfy_session\x18\x01 \x01(\tR\fsptfySession\"\x97\x01\n" +
 	"\x18GetUserMusicDataResponse\x12-\n" +
 	"\x06albums\x18\x01 \x03(\v2\x15.recordstore.v1.AlbumR\x06albums\x120\n" +
 	"\aartists\x18\x02 \x03(\v2\x16.recordstore.v1.ArtistR\aartists\x12\x1a\n" +
-	"\banalysis\x18\x03 \x01(\tR\banalysis2\x92\x03\n" +
+	"\banalysis\x18\x03 \x01(\tR\banalysis\"\x17\n" +
+	"\x15GetCurrentUserRequest\"k\n" +
+	"\x16GetCurrentUserResponse\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x04R\x06userId\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x1c\n" +
+	"\tproviders\x18\x03 \x03(\tR\tproviders2\xe9\x04\n" +
 	"\x12RecordStoreService\x12G\n" +
 	"\x06Status\x12\x1d.recordstore.v1.StatusRequest\x1a\x1e.recordstore.v1.StatusResponse\x12k\n" +
 	"\x12GetFollowedArtists\x12).recordstore.v1.GetFollowedArtistsRequest\x1a*.recordstore.v1.GetFollowedArtistsResponse\x12_\n" +
-	"\x0eGetSavedAlbums\x12%.recordstore.v1.GetSavedAlbumsRequest\x1a&.recordstore.v1.GetSavedAlbumsResponse\x12e\n" +
-	"\x10GetUserMusicData\x12'.recordstore.v1.GetUserMusicDataRequest\x1a(.recordstore.v1.GetUserMusicDataResponseB1Z/recordstore-go/gen/recordstore/v1;recordstorev1b\x06proto3"
+	"\x0eGetSavedAlbums\x12%.recordstore.v1.GetSavedAlbumsRequest\x1a&.recordstore.v1.GetSavedAlbumsResponse\x12t\n" +
+	"\x15GetYoutubeSavedAlbums\x12,.recordstore.v1.GetYoutubeSavedAlbumsRequest\x1a-.recordstore.v1.GetYoutubeSavedAlbumsResponse\x12e\n" +
+	"\x10GetUserMusicData\x12'.recordstore.v1.GetUserMusicDataRequest\x1a(.recordstore.v1.GetUserMusicDataResponse\x12_\n" +
+	"\x0eGetCurrentUser\x12%.recordstore.v1.GetCurrentUserRequest\x1a&.recordstore.v1.GetCurrentUserResponseB1Z/recordstore-go/gen/recordstore/v1;recordstorev1b\x06proto3"
 
 var (
 	file_recordstore_v1_recordstore_proto_rawDescOnce sync.Once
@@ -633,38 +846,47 @@ func file_recordstore_v1_recordstore_proto_rawDescGZIP() []byte {
 	return file_recordstore_v1_recordstore_proto_rawDescData
 }
 
-var file_recordstore_v1_recordstore_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_recordstore_v1_recordstore_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_recordstore_v1_recordstore_proto_goTypes = []any{
-	(*Artist)(nil),                     // 0: recordstore.v1.Artist
-	(*Album)(nil),                      // 1: recordstore.v1.Album
-	(*StatusRequest)(nil),              // 2: recordstore.v1.StatusRequest
-	(*StatusResponse)(nil),             // 3: recordstore.v1.StatusResponse
-	(*GetFollowedArtistsRequest)(nil),  // 4: recordstore.v1.GetFollowedArtistsRequest
-	(*GetFollowedArtistsResponse)(nil), // 5: recordstore.v1.GetFollowedArtistsResponse
-	(*GetSavedAlbumsRequest)(nil),      // 6: recordstore.v1.GetSavedAlbumsRequest
-	(*GetSavedAlbumsResponse)(nil),     // 7: recordstore.v1.GetSavedAlbumsResponse
-	(*GetUserMusicDataRequest)(nil),    // 8: recordstore.v1.GetUserMusicDataRequest
-	(*GetUserMusicDataResponse)(nil),   // 9: recordstore.v1.GetUserMusicDataResponse
+	(*Artist)(nil),                        // 0: recordstore.v1.Artist
+	(*Album)(nil),                         // 1: recordstore.v1.Album
+	(*StatusRequest)(nil),                 // 2: recordstore.v1.StatusRequest
+	(*StatusResponse)(nil),                // 3: recordstore.v1.StatusResponse
+	(*GetFollowedArtistsRequest)(nil),     // 4: recordstore.v1.GetFollowedArtistsRequest
+	(*GetFollowedArtistsResponse)(nil),    // 5: recordstore.v1.GetFollowedArtistsResponse
+	(*GetSavedAlbumsRequest)(nil),         // 6: recordstore.v1.GetSavedAlbumsRequest
+	(*GetSavedAlbumsResponse)(nil),        // 7: recordstore.v1.GetSavedAlbumsResponse
+	(*GetYoutubeSavedAlbumsRequest)(nil),  // 8: recordstore.v1.GetYoutubeSavedAlbumsRequest
+	(*GetYoutubeSavedAlbumsResponse)(nil), // 9: recordstore.v1.GetYoutubeSavedAlbumsResponse
+	(*GetUserMusicDataRequest)(nil),       // 10: recordstore.v1.GetUserMusicDataRequest
+	(*GetUserMusicDataResponse)(nil),      // 11: recordstore.v1.GetUserMusicDataResponse
+	(*GetCurrentUserRequest)(nil),         // 12: recordstore.v1.GetCurrentUserRequest
+	(*GetCurrentUserResponse)(nil),        // 13: recordstore.v1.GetCurrentUserResponse
 }
 var file_recordstore_v1_recordstore_proto_depIdxs = []int32{
-	0, // 0: recordstore.v1.Album.artists:type_name -> recordstore.v1.Artist
-	0, // 1: recordstore.v1.GetFollowedArtistsResponse.artists:type_name -> recordstore.v1.Artist
-	1, // 2: recordstore.v1.GetSavedAlbumsResponse.albums:type_name -> recordstore.v1.Album
-	1, // 3: recordstore.v1.GetUserMusicDataResponse.albums:type_name -> recordstore.v1.Album
-	0, // 4: recordstore.v1.GetUserMusicDataResponse.artists:type_name -> recordstore.v1.Artist
-	2, // 5: recordstore.v1.RecordStoreService.Status:input_type -> recordstore.v1.StatusRequest
-	4, // 6: recordstore.v1.RecordStoreService.GetFollowedArtists:input_type -> recordstore.v1.GetFollowedArtistsRequest
-	6, // 7: recordstore.v1.RecordStoreService.GetSavedAlbums:input_type -> recordstore.v1.GetSavedAlbumsRequest
-	8, // 8: recordstore.v1.RecordStoreService.GetUserMusicData:input_type -> recordstore.v1.GetUserMusicDataRequest
-	3, // 9: recordstore.v1.RecordStoreService.Status:output_type -> recordstore.v1.StatusResponse
-	5, // 10: recordstore.v1.RecordStoreService.GetFollowedArtists:output_type -> recordstore.v1.GetFollowedArtistsResponse
-	7, // 11: recordstore.v1.RecordStoreService.GetSavedAlbums:output_type -> recordstore.v1.GetSavedAlbumsResponse
-	9, // 12: recordstore.v1.RecordStoreService.GetUserMusicData:output_type -> recordstore.v1.GetUserMusicDataResponse
-	9, // [9:13] is the sub-list for method output_type
-	5, // [5:9] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	0,  // 0: recordstore.v1.Album.artists:type_name -> recordstore.v1.Artist
+	0,  // 1: recordstore.v1.GetFollowedArtistsResponse.artists:type_name -> recordstore.v1.Artist
+	1,  // 2: recordstore.v1.GetSavedAlbumsResponse.albums:type_name -> recordstore.v1.Album
+	1,  // 3: recordstore.v1.GetYoutubeSavedAlbumsResponse.albums:type_name -> recordstore.v1.Album
+	1,  // 4: recordstore.v1.GetUserMusicDataResponse.albums:type_name -> recordstore.v1.Album
+	0,  // 5: recordstore.v1.GetUserMusicDataResponse.artists:type_name -> recordstore.v1.Artist
+	2,  // 6: recordstore.v1.RecordStoreService.Status:input_type -> recordstore.v1.StatusRequest
+	4,  // 7: recordstore.v1.RecordStoreService.GetFollowedArtists:input_type -> recordstore.v1.GetFollowedArtistsRequest
+	6,  // 8: recordstore.v1.RecordStoreService.GetSavedAlbums:input_type -> recordstore.v1.GetSavedAlbumsRequest
+	8,  // 9: recordstore.v1.RecordStoreService.GetYoutubeSavedAlbums:input_type -> recordstore.v1.GetYoutubeSavedAlbumsRequest
+	10, // 10: recordstore.v1.RecordStoreService.GetUserMusicData:input_type -> recordstore.v1.GetUserMusicDataRequest
+	12, // 11: recordstore.v1.RecordStoreService.GetCurrentUser:input_type -> recordstore.v1.GetCurrentUserRequest
+	3,  // 12: recordstore.v1.RecordStoreService.Status:output_type -> recordstore.v1.StatusResponse
+	5,  // 13: recordstore.v1.RecordStoreService.GetFollowedArtists:output_type -> recordstore.v1.GetFollowedArtistsResponse
+	7,  // 14: recordstore.v1.RecordStoreService.GetSavedAlbums:output_type -> recordstore.v1.GetSavedAlbumsResponse
+	9,  // 15: recordstore.v1.RecordStoreService.GetYoutubeSavedAlbums:output_type -> recordstore.v1.GetYoutubeSavedAlbumsResponse
+	11, // 16: recordstore.v1.RecordStoreService.GetUserMusicData:output_type -> recordstore.v1.GetUserMusicDataResponse
+	13, // 17: recordstore.v1.RecordStoreService.GetCurrentUser:output_type -> recordstore.v1.GetCurrentUserResponse
+	12, // [12:18] is the sub-list for method output_type
+	6,  // [6:12] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_recordstore_v1_recordstore_proto_init() }
@@ -678,7 +900,7 @@ func file_recordstore_v1_recordstore_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_recordstore_v1_recordstore_proto_rawDesc), len(file_recordstore_v1_recordstore_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

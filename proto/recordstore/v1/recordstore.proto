@@ -45,9 +45,19 @@ message GetFollowedArtistsResponse {
 
 message GetSavedAlbumsRequest {
   string sptfy_session = 1;
+  uint64 user_id = 2;
 }
 
 message GetSavedAlbumsResponse {
+  repeated Album albums = 1;
+}
+
+message GetYoutubeSavedAlbumsRequest {
+  string youtube_session = 1;
+  uint64 user_id = 2;
+}
+
+message GetYoutubeSavedAlbumsResponse {
   repeated Album albums = 1;
 }
 
@@ -61,9 +71,19 @@ message GetUserMusicDataResponse {
   string analysis = 3;
 }
 
+message GetCurrentUserRequest {}
+
+message GetCurrentUserResponse {
+  uint64 user_id = 1;
+  string username = 2;
+  repeated string providers = 3;
+}
+
 service RecordStoreService {
   rpc Status(StatusRequest) returns (StatusResponse);
   rpc GetFollowedArtists(GetFollowedArtistsRequest) returns (GetFollowedArtistsResponse);
   rpc GetSavedAlbums(GetSavedAlbumsRequest) returns (GetSavedAlbumsResponse);
+  rpc GetYoutubeSavedAlbums(GetYoutubeSavedAlbumsRequest) returns (GetYoutubeSavedAlbumsResponse);
   rpc GetUserMusicData(GetUserMusicDataRequest) returns (GetUserMusicDataResponse);
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse);
 }

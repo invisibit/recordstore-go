@@ -27,11 +27,15 @@ import (
 const version = "1.0.1"
 
 type Config struct {
-	port          string
-	env           string
-	client_id     string
-	client_secret string
-	ui_address    string
+	srv_addr              string
+	srv_port              string
+	env                   string
+	client_id             string
+	client_secret         string
+	youtube_client_id     string
+	youtube_client_secret string
+	ui_address            string
+	ui_port               string
 
 	db struct {
 		conn     *gorm.DB
@@ -67,10 +71,14 @@ func main() {
 	}
 
 	cfg.env = os.Getenv("env")
-	cfg.port = os.Getenv("srv_port")
+	cfg.srv_addr = os.Getenv("srv_address")
+	cfg.srv_port = os.Getenv("srv_port")
 	cfg.client_id = os.Getenv("client_id")
 	cfg.client_secret = os.Getenv("client_secret")
+	cfg.youtube_client_id = os.Getenv("youtube_client_id")
+	cfg.youtube_client_secret = os.Getenv("youtube_client_secret")
 	cfg.ui_address = os.Getenv("ui_address")
+	cfg.ui_port = os.Getenv("ui_port")
 	cfg.db.dsn = os.Getenv("dsn")
 	cfg.db.user = os.Getenv("db_user")
 	cfg.db.password = os.Getenv("db_password")
@@ -109,26 +117,28 @@ func main() {
 		conn.AutoMigrate(&models.Album{})
 		conn.AutoMigrate(&models.Artist{})
 		conn.AutoMigrate(&models.User{})
+		conn.AutoMigrate(&models.ConnectedProvider{})
 		conn.AutoMigrate(&models.UserArtist{})
 		conn.AutoMigrate(&models.UserAlbum{})
 
 	}
 
-	hostname := ""
-	if cfg.env != "develop" {
-		hostname = "localhost"
-	} else {
-		hostname = "0.0.0.0"
-	}
+	// hostname := ""
+	// if cfg.env != "develop" {
+	// 	hostname = "localhost"
+	// } else {
+	// 	hostname = "0.0.0.0"
+	// }
 	srv := &http.Server{
-		Addr:         fmt.Sprintf("%s:%s", hostname, cfg.port),
+		Addr:         fmt.Sprintf("%s:%s", cfg.srv_addr, cfg.srv_port),
 		Handler:      h2c.NewHandler(app.routes(), &http2.Server{}),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
-	logger.Println("Starting server open port", cfg.port)
+	logger.Println("Starting server open port", cfg.srv_port)
+	fmt.Println("Starting server at", cfg.srv_addr, cfg.srv_port)
 
 	// fmt.Println("Config struct", cfg)
 

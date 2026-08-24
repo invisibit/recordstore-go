@@ -58,5 +58,11 @@ func (app *application) originAllowed(origin string) bool {
 		}
 		return false
 	}
-	return origin == "https://"+app.config.ui_address+":"+app.config.ui_port
+	switch origin {
+	case "https://" + app.config.ui_address,
+		"https://" + app.config.ui_address + ":443",
+		"https://" + app.config.ui_address + ":4000":
+		return true
+	}
+	return false
 }

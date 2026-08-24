@@ -1,20 +1,20 @@
-# Use an official Golang runtime as a parent image
-FROM golang:1.21
+# syntax=docker/dockerfile:1.7
 
-# Set the working directory to /go/src/app
-WORKDIR /go/src/recordstore-go
+FROM golang:1.25 AS build
+WORKDIR /src
 
-# Copy the local package files to the container's workspace
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
-COPY default.env .env
 
-# Build the Go application
-RUN go get -d -v ./...
-RUN go install -v ./...
-#RUN go build
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/recordstore-go .
 
-# Set the entry point to your application
-CMD ["recordstore-go"]
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=build /out/recordstore-go /recordstore-go
 
-# Document that the service listens on port 8080
+ENV PORT=8080
 EXPOSE 8080
+
+USER nonroot:nonroot
+ENTRYPOINT ["/recordstore-go"]

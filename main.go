@@ -19,6 +19,7 @@ import (
 	"gorm.io/gorm"
 )
 
+
 // TODOS - 20240103
 // Add route for existing user
 // Move controllers to controller directory
@@ -65,9 +66,8 @@ func main() {
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
 	fmt.Println("Load .env")
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file Add .env to prod that's blank")
+	if err := godotenv.Load(); err != nil && cfg.env != "prod" {
+		log.Println("No .env file found, relying on real environment variables")
 	}
 
 	cfg.env = os.Getenv("env")
@@ -88,11 +88,16 @@ func main() {
 	cfg.vertex.Publisher = os.Getenv("vertexai_publisher")
 	cfg.vertex.Model = os.Getenv("vertexai_model")
 
-	// flag.IntVar(&cfg.port, "port", 4000, "server port listen on ")
-	// flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production")
-	// flag.StringVar(&cfg.db.dsn, "dsn", "postgres://root:root@127.0.0.1:5434/testingwithrentals?sslmode=disable", "Postgres connection string")
-	flag.StringVar(&cfg.db.dsn, "dsn", "postgres://root:root@127.0.0.1:5434/testingwithrentals?sslmode=disable", "Postgres connection string")
+	flag.StringVar(&cfg.db.dsn, "dsn", "", "Postgres connection string (overrides host/user/password/dbname)")
 	flag.Parse()
+
+	// In Cloud Run, PORT is set to 8080. Default srv_port if unset.
+	if cfg.srv_port == "" {
+		cfg.srv_port = os.Getenv("PORT")
+	}
+	if cfg.srv_port == "" {
+		cfg.srv_port = "8080"
+	}
 
 	app := &application{
 		config: cfg,
@@ -100,10 +105,19 @@ func main() {
 	}
 
 	// Set up database connection
-	if cfg.db.dsn != "" {
+	dsn := cfg.db.dsn
+	if dsn == "" {
+		dsn = "host=" + os.Getenv("db_host") +
+			" user=" + cfg.db.user +
+			" password=" + cfg.db.password +
+			" dbname=" + cfg.db.dbName +
+			" port=" + cfg.db.dbPort +
+			" sslmode=disable"
+	}
+	if dsn != "" {
 		conn, err := gorm.Open(postgres.New(postgres.Config{
-			DSN:                  "host=localhost user=" + cfg.db.user + " password=" + cfg.db.password + " dbname=" + cfg.db.dbName + " port=" + cfg.db.dbPort + " sslmode=disable", // data source name, refer https://github.com/jackc/pgx
-			PreferSimpleProtocol: true,                                                                                                                                               // disables implicit prepared statement usage. By default pgx automatically uses the extended protocol
+			DSN:                  dsn,
+			PreferSimpleProtocol: true,
 		}), &gorm.Config{})
 		// defer conn.Close()
 		cfg.db.conn = conn
@@ -113,7 +127,7 @@ func main() {
 		}
 
 		// Migrate the schema(probably move to a seperate function)
-		_ = conn.Exec("CREATE DATABASE IF NOT EXISTS record_store;")
+		_ = conn.Exec("CREATE DATABASE IF NOT EXISTS record_store_clerk;")
 		conn.AutoMigrate(&models.Album{})
 		conn.AutoMigrate(&models.Artist{})
 		conn.AutoMigrate(&models.User{})
@@ -140,10 +154,7 @@ func main() {
 	logger.Println("Starting server open port", cfg.srv_port)
 	fmt.Println("Starting server at", cfg.srv_addr, cfg.srv_port)
 
-	// fmt.Println("Config struct", cfg)
-
-	// srvErr := srv.ListenAndServe()
-	srvErr := srv.ListenAndServeTLS("localhost+2.pem", "localhost+2-key.pem")
+	srvErr := srv.ListenAndServe()
 	if srvErr != nil {
 		log.Println(srvErr)
 	}

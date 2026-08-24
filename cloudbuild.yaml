@@ -1,6 +1,42 @@
+substitutions:
+  _REGION: us-central1
+  _PROJECT: hipster-record-store-clerk
+  _REPO: recordstore-go
+  _AR_REPO: recordstore
+  _SERVICE: recordstore-go
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 steps:
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/$PROJECT_ID/your-app-name', '.']
+- id: build
+  name: gcr.io/cloud-builders/docker
+  args:
+  - build
+  - --tag=${_REGION}-docker.pkg.dev/${_PROJECT}/${_AR_REPO}/${_REPO}:$SHORT_SHA
+  - --tag=${_REGION}-docker.pkg.dev/${_PROJECT}/${_AR_REPO}/${_REPO}:latest
+  - --file=Dockerfile
+  - .
+
+- id: push
+  name: gcr.io/cloud-builders/docker
+  args:
+  - push
+  - --all-tags
+  - ${_REGION}-docker.pkg.dev/${_PROJECT}/${_AR_REPO}/${_REPO}
+
+# Terraform sets non-secret env vars on the Cloud Run service.
+# Cloud Build only updates secrets and rolls the image.
+- id: deploy
+  name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  entrypoint: gcloud
+  args:
+  - run
+  - deploy
+  - ${_SERVICE}
+  - --image=${_REGION}-docker.pkg.dev/${_PROJECT}/${_AR_REPO}/${_REPO}:$SHORT_SHA
+  - --region=${_REGION}
+  - --update-secrets=client_secret=spotify-client-secret:latest,youtube_client_secret=youtube-client-secret:latest,db_password=db-password:latest
 
 images:
-- 'gcr.io/$PROJECT_ID/recordstore-go'
+- ${_REGION}-docker.pkg.dev/${_PROJECT}/${_AR_REPO}/${_REPO}:$SHORT_SHA

@@ -442,6 +442,46 @@ func (a *Adapters) GetSpotifyUserSavedAlbums(userToken string) (error, []models.
 	return nil, albums
 }
 
+// Get available devices for playback
+func (a *Adapters) GetSpotifyDevices(userToken string, deviceID string) error {
+	fmt.Println("Enter GetSpotifyDevices")
+
+	// Retrieve token from api
+	urlRequest := "https://api.spotify.com/v1/me/devices"
+
+	cookieJar, _ := cookiejar.New(nil)
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr,
+		Jar: cookieJar,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		}}
+
+	fmt.Println("GetSpotifyDevices urlRequest", urlRequest)
+	req, err := http.NewRequest("GET", urlRequest, strings.NewReader(""))
+	req.Header.Add("Authorization", "Bearer "+userToken)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Printf("GetSpotifyDevices Error: %s", err)
+		return err
+	}
+
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+
+	// Just for debugging, print the response body
+	if err != nil {
+		fmt.Printf("GetSpotifyDevices Error: %s", err)
+		return err
+	}
+	fmt.Println("GetSpotifyDevices received", string(body))
+
+	return nil
+}
+
 // Send request to spotify to play onb users device
 func (a *Adapters) PlaySpotifyAlbum(userToken string, albumID string, deviceID string) error {
 	fmt.Println("Enter PlaySpotifyAlbum")

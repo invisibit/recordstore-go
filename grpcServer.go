@@ -143,6 +143,9 @@ func (app *application) GetSavedAlbums(ctx context.Context, req *connect.Request
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 		albums = append(albums, spotifyAlbums...)
+
+		// Get the available devices for playback
+
 	}
 
 	if user.YoutubeSession != "" {

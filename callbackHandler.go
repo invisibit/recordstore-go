@@ -67,12 +67,12 @@ func (app *application) spotifyCallbackHandler(w http.ResponseWriter, r *http.Re
 		// Create a new user if no userID is provided
 		user.CreateUser(cfg.db.conn)
 	}
-	// fmt.Println("spotifyCallbackHandler", user.ID)
+	fmt.Println("spotifyCallbackHandler", user.ID)
 
 	code := r.URL.Query().Get("code")
 	loginError := r.URL.Query().Get("error")
 
-	// fmt.Println("spotifyCallbackHandler code", code)
+	fmt.Println("spotifyCallbackHandler code", code)
 	if loginError != "" {
 		fmt.Println("loginError", loginError)
 	}
@@ -133,9 +133,9 @@ func (app *application) youtubeCallbackHandler(w http.ResponseWriter, r *http.Re
 		user.CreateUser(cfg.db.conn)
 	}
 
-	// fmt.Println("youtubeCallbackHandler", r.URL.Query().Get("code"))
 	code := r.URL.Query().Get("code")
 	loginError := r.URL.Query().Get("error")
+	fmt.Println("youtubeCallbackHandler", code)
 
 	// fmt.Println("youtubeCallbackHandler code", code)
 	if loginError != "" {
